@@ -74,12 +74,16 @@ export function BodyPage() {
               </ul>
             </div>
           ))}
-          <h3>Try next</h3>
-          <ul>
-            {suggestions.map((ex) => (
-              <li key={ex.id}>{ex.name}</li>
-            ))}
-          </ul>
+          {suggestions.length > 0 && (
+            <>
+              <h3>Try next</h3>
+              <ul>
+                {suggestions.map((ex) => (
+                  <li key={ex.id}>{ex.name}</li>
+                ))}
+              </ul>
+            </>
+          )}
         </section>
       )}
       <section>

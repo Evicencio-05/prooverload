@@ -2,17 +2,20 @@
 /** Phase 2: finer muscle taxonomy, catalog consistency, legacy remap. */
 import { CATALOG } from '../src/data/exercises.ts';
 import {
+  CATALOG_OPTIONAL_MUSCLES,
   LEGACY_MUSCLE_MAP,
   MUSCLE_ID_SET,
   MUSCLE_LABEL,
   MUSCLES,
+  catalogMuscleIds,
   catalogUsesOnlyCurrentIds,
+  coversLegacyGroup,
   formatMuscleList,
   normalizeCatalogExercise,
   remapMuscleIds,
 } from '../src/data/muscles.ts';
 import { inferCustomDefaults } from '../src/lib/customCatalog.ts';
-import { analyzeBody } from '../src/lib/bodyAnalysis.ts';
+import { analyzeBody, suggestExercisesFor } from '../src/lib/bodyAnalysis.ts';
 
 function assert(cond, msg) {
   if (!cond) throw new Error(msg);
@@ -64,6 +67,96 @@ assert(ohp.primary.includes('triceps_long'), 'overhead extension → long head')
 
 assert(inferCustomDefaults('hammer curl').primary === 'brachialis', 'hammer infers brachialis');
 assert(inferCustomDefaults('face pull').secondary.includes('rotator_cuff'), 'face pull tags cuff');
+
+const SQUAT_FAMILY = [
+  'barbell-back-squat',
+  'front-squat',
+  'hack-squat',
+  'leg-press',
+  'bulgarian-split-squat',
+  'walking-lunge',
+  'goblet-squat',
+  'smith-squat',
+  'step-up',
+  'sumo-deadlift',
+];
+const SHRUG_FAMILY = ['shrug', 'dumbbell-shrug'];
+const HINGE_FAMILY = ['romanian-deadlift', 'good-morning'];
+
+function catalogRow(id) {
+  const ex = CATALOG.find((row) => row.id === id);
+  assert(ex, `missing catalog row ${id}`);
+  return ex;
+}
+
+for (const id of SQUAT_FAMILY) {
+  assert(coversLegacyGroup(catalogRow(id), 'quads'), `${id} should cover LEGACY quads (RF/VL/VM)`);
+}
+for (const id of SHRUG_FAMILY) {
+  assert(coversLegacyGroup(catalogRow(id), 'traps'), `${id} should cover LEGACY traps (upper/mid/lower)`);
+}
+for (const id of HINGE_FAMILY) {
+  assert(coversLegacyGroup(catalogRow(id), 'hamstrings'), `${id} should cover LEGACY hamstrings`);
+}
+
+const squatInfer = inferCustomDefaults('goblet squat');
+assert(
+  coversLegacyGroup({ primary: [squatInfer.primary], secondary: squatInfer.secondary }, 'quads'),
+  'squat inference covers RF/VL/VM like LEGACY quads',
+);
+const shrugInfer = inferCustomDefaults('barbell shrug');
+assert(
+  coversLegacyGroup({ primary: [shrugInfer.primary], secondary: shrugInfer.secondary }, 'traps'),
+  'shrug inference covers upper/mid/lower like LEGACY traps',
+);
+
+assert(
+  JSON.stringify(remapMuscleIds(['quads'])) === JSON.stringify(LEGACY_MUSCLE_MAP.quads),
+  'remapMuscleIds(quads) matches LEGACY_MUSCLE_MAP',
+);
+assert(
+  JSON.stringify(remapMuscleIds(['traps'])) === JSON.stringify(LEGACY_MUSCLE_MAP.traps),
+  'remapMuscleIds(traps) matches LEGACY_MUSCLE_MAP',
+);
+
+const covered = catalogMuscleIds(CATALOG);
+for (const id of MUSCLE_ID_SET) {
+  if (CATALOG_OPTIONAL_MUSCLES.includes(id)) {
+    assert(!covered.has(id), `${id} is allowlisted as catalog-optional but appears on a static row`);
+    continue;
+  }
+  assert(covered.has(id), `${id} has no catalog row and is not in CATALOG_OPTIONAL_MUSCLES`);
+}
+
+const emptyWeek = analyzeBody([], CATALOG);
+assert(
+  !emptyWeek.underworked.some((s) => CATALOG_OPTIONAL_MUSCLES.includes(s.id)),
+  'underworked ignores tissues with no catalog mapping',
+);
+assert(
+  emptyWeek.underworked.every((s) => covered.has(s.id)),
+  'underworked only includes catalog-mapped tissues',
+);
+assert(
+  !emptyWeek.underworked.some((s) => s.id === 'sternocleidomastoid'),
+  'SCM is not permanently underworked',
+);
+assert(
+  suggestExercisesFor(emptyWeek.underworked.slice(0, 4).map((m) => m.id), CATALOG).length > 0,
+  'Try-next finds catalog rows for underworked mapped tissues',
+);
+
+const withNeck = analyzeBody(
+  [],
+  [
+    ...CATALOG,
+    { id: 'neck-curl', name: 'Neck Curl', equipment: 'other', primary: ['sternocleidomastoid'], secondary: [] },
+  ],
+);
+assert(
+  withNeck.underworked.some((s) => s.id === 'sternocleidomastoid'),
+  'SCM can enter underworked once a movement maps there',
+);
 
 const analysis = analyzeBody(
   [

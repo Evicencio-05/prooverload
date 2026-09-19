@@ -1,4 +1,4 @@
-import { MUSCLES, remapMuscleIds } from '../data/muscles';
+import { catalogMuscleIds, MUSCLES, remapMuscleIds } from '../data/muscles';
 import type { CatalogExercise, MuscleId, Workout } from '../types';
 
 export type MuscleStat = {
@@ -76,7 +76,9 @@ export function analyzeBody(
       : [...trained].sort((a, b) => a.volume - b.volume)[Math.floor(trained.length / 2)]
           .volume;
 
+  const mapped = catalogMuscleIds(catalog);
   const underworked = list.filter((s) => {
+    if (!mapped.has(s.id)) return false;
     const stale = s.daysAgo === null || s.daysAgo >= 5;
     const light = trained.length >= 4 && s.volume < median * 0.4;
     return stale || light;

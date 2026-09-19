@@ -137,3 +137,26 @@ export function musclesByRegion(): { region: MuscleRegion; muscles: MuscleMeta[]
 export function catalogUsesOnlyCurrentIds(ex: CatalogExercise): boolean {
   return [...ex.primary, ...ex.secondary].every(isMuscleId);
 }
+
+/** Tissues the static catalog may omit until a real common lift is added. */
+export const CATALOG_OPTIONAL_MUSCLES: readonly MuscleId[] = ['sternocleidomastoid'];
+
+export function exerciseMuscleIds(ex: { primary?: string[]; secondary?: string[] }): MuscleId[] {
+  return remapMuscleIds([...(ex.primary ?? []), ...(ex.secondary ?? [])]);
+}
+
+export function catalogMuscleIds(catalog: readonly { primary?: string[]; secondary?: string[] }[]): Set<MuscleId> {
+  const covered = new Set<MuscleId>();
+  for (const ex of catalog) {
+    for (const id of exerciseMuscleIds(ex)) covered.add(id);
+  }
+  return covered;
+}
+
+export function coversLegacyGroup(
+  ex: { primary?: string[]; secondary?: string[] },
+  legacy: LegacyMuscleId,
+): boolean {
+  const hits = new Set(exerciseMuscleIds(ex));
+  return LEGACY_MUSCLE_MAP[legacy].every((id) => hits.has(id));
+}
