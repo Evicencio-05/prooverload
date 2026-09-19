@@ -3,7 +3,7 @@ import { CustomBadge } from '../components/CustomBadge';
 import { ExercisePicker } from '../components/ExercisePicker';
 import { RestChip } from '../components/RestChip';
 import { SetEditor } from '../components/SetEditor';
-import { MUSCLE_LABEL } from '../data/muscles';
+import { formatMuscleList } from '../data/muscles';
 import { bestForGoal, exerciseById, lastSessionForExercise, suggestNextLoad, workingLoadHistory } from '../lib/overload';
 import { useApp } from '../state/AppState';
 import type { GoalKind } from '../types';
@@ -63,7 +63,7 @@ export function LogPage() {
                   {ex?.custom ? <CustomBadge queued={Boolean(ex.promoteRequestedAt)} /> : null}
                 </h2>
                 <p className="muted">
-                  {ex?.primary.map((m) => MUSCLE_LABEL[m]).join(', ')}
+                  {ex ? formatMuscleList(ex.primary) : ''}
                 </p>
               </div>
               <button type="button" className="star" onClick={() => void app.toggleFavorite(block.exerciseId)}>

@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { MUSCLES, MUSCLE_LABEL } from '../data/muscles';
+import { DEFAULT_MUSCLE_ID, normalizeCatalogExercise } from '../data/muscles';
 import { EQUIPMENT_OPTIONS, inferCustomDefaults, parseAliases, titleCaseExerciseName } from '../lib/customCatalog';
 import { useApp } from '../state/AppState';
 import type { CatalogExercise, MuscleId } from '../types';
+import { MuscleSelect, SecondaryMuscleChips } from './MuscleFields';
 
 export function CustomExerciseForm({
   draft,
@@ -15,10 +16,21 @@ export function CustomExerciseForm({
 }) {
   const { saveCustomExercise } = useApp();
   const inferred = inferCustomDefaults(draft?.name ?? '');
+  const normalizedDraft = draft
+    ? normalizeCatalogExercise({
+        primary: draft.primary ?? [inferred.primary],
+        secondary: draft.secondary ?? inferred.secondary,
+      })
+    : null;
   const [name, setName] = useState(draft?.name ?? '');
   const [equipment, setEquipment] = useState(draft?.equipment ?? inferred.equipment);
-  const [primary, setPrimary] = useState<MuscleId>(draft?.primary?.[0] ?? inferred.primary);
-  const [secondary, setSecondary] = useState<MuscleId[]>(draft?.secondary ?? inferred.secondary);
+  const remappedPrimary = normalizedDraft?.primary ?? [inferred.primary];
+  const remappedSecondary = normalizedDraft?.secondary ?? inferred.secondary;
+  const initialPrimary = remappedPrimary[0] ?? inferred.primary ?? DEFAULT_MUSCLE_ID;
+  const [primary, setPrimary] = useState<MuscleId>(initialPrimary);
+  const [secondary, setSecondary] = useState<MuscleId[]>(
+    [...remappedPrimary.slice(1), ...remappedSecondary].filter((id) => id !== initialPrimary),
+  );
   const [aliasText, setAliasText] = useState((draft?.aliases ?? []).join(', '));
   const [busy, setBusy] = useState(false);
 
@@ -72,31 +84,8 @@ export function CustomExerciseForm({
           ))}
         </select>
       </label>
-      <label className="lbl">
-        Primary muscle
-        <select value={primary} onChange={(e) => setPrimary(e.target.value as MuscleId)}>
-          {Object.entries(MUSCLE_LABEL).map(([id, label]) => (
-            <option key={id} value={id}>
-              {label}
-            </option>
-          ))}
-        </select>
-      </label>
-      <fieldset className="stack tight">
-        <legend className="lbl">Secondary muscles</legend>
-        <div className="chip-wrap">
-          {MUSCLES.filter((m) => m.id !== primary).map((m) => (
-            <button
-              key={m.id}
-              type="button"
-              className={`chip${secondary.includes(m.id) ? ' on' : ''}`}
-              onClick={() => toggleSecondary(m.id)}
-            >
-              {m.label}
-            </button>
-          ))}
-        </div>
-      </fieldset>
+      <MuscleSelect value={primary} onChange={setPrimary} />
+      <SecondaryMuscleChips primary={primary} selected={secondary} onToggle={toggleSecondary} />
       <label className="lbl">
         Aliases <span className="muted">(optional, comma-separated)</span>
         <input

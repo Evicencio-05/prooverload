@@ -12,30 +12,11 @@
 import { readFileSync, existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { MUSCLE_ID_SET, remapMuscleIds } from '../src/data/muscles.ts';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const CATALOG_PATH = join(ROOT, 'src/data/exercises.ts');
 const SCHEMA = 'prooverload.catalog-promote.v1';
-const MUSCLE_IDS = new Set([
-  'chest',
-  'upper_back',
-  'lats',
-  'traps',
-  'lower_back',
-  'front_delts',
-  'side_delts',
-  'rear_delts',
-  'biceps',
-  'triceps',
-  'forearms',
-  'abs',
-  'obliques',
-  'glutes',
-  'quads',
-  'hamstrings',
-  'adductors',
-  'calves',
-]);
 const EQUIPMENT = new Set(['barbell', 'dumbbell', 'machine', 'cable', 'bodyweight', 'other']);
 
 function slugify(name) {
@@ -102,7 +83,7 @@ function normalizePayload(raw) {
   if (raw.customExercises) return normalizePayload(raw.customExercises);
   const name = String(raw.name || '').trim();
   if (!name) return null;
-  const primary = asStringList(raw.primary);
+  const primary = remapMuscleIds(asStringList(raw.primary));
   if (!primary.length) return null;
   return {
     schema: raw.schema || SCHEMA,
@@ -110,7 +91,7 @@ function normalizePayload(raw) {
     aliases: asStringList(raw.aliases),
     equipment: String(raw.equipment || 'other').trim() || 'other',
     primary,
-    secondary: asStringList(raw.secondary),
+    secondary: remapMuscleIds(asStringList(raw.secondary)).filter((id) => !primary.includes(id)),
     customId: String(raw.customId || raw.id || '').trim(),
     note: String(raw.note || raw.promoteNote || '').trim(),
     promoteRequestedAt: raw.promoteRequestedAt,
@@ -151,7 +132,7 @@ function validate(payload) {
   if (!payload.name) errors.push('missing name');
   if (!payload.primary.length) errors.push('need at least one primary muscle');
   for (const m of [...payload.primary, ...payload.secondary]) {
-    if (!MUSCLE_IDS.has(m)) errors.push(`unknown MuscleId: ${m}`);
+    if (!MUSCLE_ID_SET.has(m)) errors.push(`unknown MuscleId: ${m}`);
   }
   if (payload.equipment && !EQUIPMENT.has(payload.equipment)) {
     errors.push(`unknown equipment: ${payload.equipment} (still printable; expected one of ${[...EQUIPMENT].join(', ')})`);
@@ -198,8 +179,11 @@ function selfTest() {
   const issue = ['## Catalog promotion', '', '```json', JSON.stringify(sample, null, 2), '```'].join('\n');
   const [parsed] = parseInput(issue);
   const row = formatRow(parsed, slugify(parsed.name));
-  if (!row.includes("id: 'sissy-squat'") || !row.includes('"Sissy Squat"') || !row.includes('quads')) {
+  if (!row.includes("id: 'sissy-squat'") || !row.includes('"Sissy Squat"') || !row.includes('rectus_femoris')) {
     throw new Error(`self-test row mismatch: ${row}`);
+  }
+  if (!parsed.primary.includes('rectus_femoris') || !parsed.primary.includes('vastus_medialis')) {
+    throw new Error(`self-test remap failed: ${parsed.primary}`);
   }
   const dump = parseInput(JSON.stringify({ customExercises: [{ ...sample, promoteStatus: 'requested' }] }));
   if (dump.length !== 1) throw new Error('self-test dump failed');
@@ -225,7 +209,9 @@ function selfTest() {
       'abc',
     ].join('\n'),
   );
-  if (form[0].name !== 'Sissy Squat' || form[0].primary[0] !== 'quads') throw new Error('self-test form failed');
+  if (form[0].name !== 'Sissy Squat' || !form[0].primary.includes('rectus_femoris')) {
+    throw new Error('self-test form failed');
+  }
   console.log('promote-catalog self-test ok');
 }
 

@@ -35,7 +35,7 @@ Issue body contract (v1):
   "name": "Sissy Squat",
   "aliases": [],
   "equipment": "bodyweight",
-  "primary": ["quads"],
+  "primary": ["rectus_femoris", "vastus_medialis"],
   "secondary": [],
   "customId": "<uuid>",
   "note": "",
@@ -56,12 +56,13 @@ gh issue view 12 --json body --jq .body | node scripts/promote-catalog.mjs --std
 ```
 
 3. Confirm the name is not already in `src/data/exercises.ts` (the script warns on duplicate id/name).
-4. Open a PR that adds the printed row to `CATALOG`. **Do not auto-merge.** A human reviews muscle mapping (Phase 2 may expand `MuscleId` later).
+4. Open a PR that adds the printed row to `CATALOG`. **Do not auto-merge.** A human reviews muscle mapping against the current anatomical `MuscleId` set in `src/data/muscles.ts`.
 5. After merge, leave the user’s custom in place. Optional later work: mark `promoteStatus: "submitted"` in Instant — not required for Phase 1.
+
+Phase 1 coarse ids (`chest`, `quads`, `triceps`, …) still appear on older custom / promote JSON. `remapMuscleIds` in `src/data/muscles.ts` expands those to the current tissues before analysis, labels, or printing a catalog row. Prefer writing the fine ids on new rows.
 
 ## Out of scope
 
 - Instant admin secrets in the client
 - Auto-merging PRs
-- Expanding `MuscleId` / MuscleMap
 - Changing Instant entity shape (keep using the JSON blob)

@@ -3,7 +3,7 @@ import { CustomBadge } from '../components/CustomBadge';
 import { CustomExerciseForm } from '../components/CustomExerciseForm';
 import { PromotePanel } from '../components/PromotePanel';
 import { searchCatalog } from '../data/exercises';
-import { MUSCLE_LABEL } from '../data/muscles';
+import { formatMuscleList } from '../data/muscles';
 import {
   findCustomByName,
   hasUsefulCatalogHits,
@@ -34,8 +34,8 @@ function LibraryRow({
           {ex.custom ? <CustomBadge queued={Boolean(ex.promoteRequestedAt)} /> : null}
         </strong>
         <p className="muted">
-          {ex.primary.map((m) => MUSCLE_LABEL[m]).join(', ')}
-          {ex.secondary.length ? ` · ${ex.secondary.map((m) => MUSCLE_LABEL[m]).join(', ')}` : ''}
+          {formatMuscleList(ex.primary)}
+          {ex.secondary.length ? ` · ${formatMuscleList(ex.secondary)}` : ''}
           {ex.equipment ? ` · ${ex.equipment}` : ''}
         </p>
         {ex.custom && (

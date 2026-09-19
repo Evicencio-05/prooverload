@@ -19,7 +19,7 @@ assert(!hasUsefulCatalogHits(CATALOG, 'sissy'), 'sissy should be a weak/empty se
 assert(hasUsefulCatalogHits(CATALOG, 'squat'), 'squat should hit library names');
 
 const infer = inferCustomDefaults('sissy squat');
-assert(infer.confident && infer.primary === 'quads', 'sissy squat infers quads');
+assert(infer.confident && infer.primary === 'rectus_femoris', 'sissy squat infers rectus femoris');
 assert(infer.equipment === 'bodyweight', 'sissy squat infers bodyweight');
 assert(titleCaseExerciseName('sissy squat') === 'Sissy Squat', 'title case');
 
@@ -33,6 +33,7 @@ const payload = buildPromotePayload({
   promoteRequestedAt: 1,
 });
 assert(payload.schema === 'prooverload.catalog-promote.v1', 'payload schema');
+assert(payload.primary.includes('rectus_femoris'), 'legacy quads remaps in promote payload');
 assert(formatPromoteIssueBody(payload).includes('"customId": "test-id"'), 'issue body has custom id');
 assert(formatCatalogRow(payload, 'sissy-squat').includes("id: 'sissy-squat'"), 'printed row');
 

@@ -1,3 +1,4 @@
+import { normalizeCatalogExercise, remapMuscleIds } from '../data/muscles';
 import type { CatalogExercise, MuscleId } from '../types';
 
 export const CATALOG_PROMOTE_REPO = 'Evicencio-05/prooverload';
@@ -17,13 +18,14 @@ export type PromotePayload = {
 };
 
 export function buildPromotePayload(ex: CatalogExercise, note = ''): PromotePayload {
+  const normalized = normalizeCatalogExercise(ex);
   return {
     schema: PROMOTE_SCHEMA,
     name: ex.name,
     aliases: ex.aliases ?? [],
     equipment: ex.equipment,
-    primary: ex.primary,
-    secondary: ex.secondary,
+    primary: remapMuscleIds(normalized.primary),
+    secondary: remapMuscleIds(normalized.secondary),
     customId: ex.id,
     note: (note || ex.promoteNote || '').trim(),
     promoteRequestedAt: ex.promoteRequestedAt,

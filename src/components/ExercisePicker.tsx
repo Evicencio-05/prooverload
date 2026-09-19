@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { searchCatalog } from '../data/exercises';
-import { MUSCLE_LABEL } from '../data/muscles';
+import { formatMuscleList } from '../data/muscles';
 import {
   findCustomByName,
   hasUsefulCatalogHits,
@@ -26,7 +26,7 @@ function ExercisePickRow({
           {ex.name}
           {ex.custom ? <CustomBadge queued={Boolean(ex.promoteRequestedAt)} /> : null}
         </span>
-        <small>{ex.primary.map((m) => MUSCLE_LABEL[m]).join(', ')}</small>
+        <small>{formatMuscleList(ex.primary)}</small>
       </span>
     </button>
   );

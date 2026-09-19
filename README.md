@@ -9,7 +9,7 @@ Installable as a PWA. Accounts live in InstantDB (cloud auth + sync) with an Ind
 - **Log (home):** start or resume today’s session, add an exercise, log weight × reps, optional RPE/notes, big steppers, duplicate last set, warmup vs working, finish. Rest timer is optional and never blocks.
 - **Library:** common lifts, search, recents, favorites, custom exercises. Each movement maps to primary and secondary muscles.
 - **Overload:** last session loads, suggested next load, working-set history, per-exercise goals.
-- **Body:** visual coverage from your own working-set history (not a camera scan). Underworked regions are called out as training-volume guidance only — not a medical diagnosis.
+- **Body:** visual coverage from your own working-set history (not a camera scan). The map uses a finer anatomical model (pec heads, trap divisions, quad/hamstring heads, gastroc vs soleus, etc.). Underworked tissues are called out as training-volume guidance only — not a medical diagnosis.
 - **History:** past sessions stay editable on the phone.
 
 ## Setup

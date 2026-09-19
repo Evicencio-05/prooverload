@@ -151,6 +151,15 @@ legend.lbl { display: block; padding: 0; }
 }
 .badge-custom.queued { background: #24302a; color: var(--accent); }
 .chip-wrap { display: flex; flex-wrap: wrap; gap: 8px; }
+.muscle-group { display: flex; flex-direction: column; gap: 6px; }
+.muscle-group-label {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 700;
+}
 .custom-form fieldset { border: 0; margin: 0; padding: 0; }
 .stack.tight { gap: 8px; }
 .payload-box {

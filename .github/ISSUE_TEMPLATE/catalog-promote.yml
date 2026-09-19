@@ -41,8 +41,8 @@ body:
     id: primary
     attributes:
       label: Primary muscles
-      description: MuscleId values, comma-separated (e.g. quads)
-      placeholder: quads
+      description: Current MuscleId values, comma-separated (legacy ids such as quads still remap)
+      placeholder: rectus_femoris, vastus_medialis
     validations:
       required: true
   - type: input
@@ -50,7 +50,7 @@ body:
     attributes:
       label: Secondary muscles
       description: MuscleId values, comma-separated
-      placeholder: glutes
+      placeholder: gluteus_maximus
   - type: input
     id: custom_id
     attributes:
