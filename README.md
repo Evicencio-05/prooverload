@@ -2,7 +2,7 @@
 
 Mobile-first gym logger. Ease of logging is the product. Progressive overload, goals, and a muscle map are built from the sets you actually record.
 
-Installable as a PWA. Accounts live in InstantDB (cloud auth + sync) with an IndexedDB outbox so a dropped network mid-set does not lose the log. Email/password is served by the Vite `/api/auth` routes using the Instant admin SDK so you can sign in on a phone without waiting on a magic-code email.
+Installable as a PWA. Accounts live in InstantDB (cloud auth + sync) with an IndexedDB outbox so a dropped network mid-set does not lose the log. Email/password is custom (not Instant magic-code): Vite middleware in `npm run dev` / `preview`, and Vercel Node functions in production, both calling shared handlers in `server/auth-core.ts` via `/api/auth/signup` and `/api/auth/login`.
 
 ## What it does
 
@@ -33,9 +33,26 @@ npx instant-cli@latest push perms --yes
 
 Instant’s client cache plus a local outbox. If the network drops while you log a set, the set stays on the device and flushes when connectivity returns. The tab bar shows queued sync. Instant queues transactions while offline; the extra outbox covers auth-token or first-write races.
 
-## Deploy
+## Deploy (Vercel)
 
-`npm run build` then host `dist` as a static PWA. Keep a small Node (or Vite preview) process for `/api/auth/signup` and `/api/auth/login`, with `INSTANT_ADMIN_TOKEN` only on the server — never in `VITE_*`.
+Production is the Vite PWA in `dist` plus two Node serverless routes. Auth is not Instant magic-code — the browser `POST`s JSON to `/api/auth/signup` and `/api/auth/login`, and those functions use `@instantdb/admin` with `INSTANT_ADMIN_TOKEN` to create an Instant token.
+
+1. Import this GitHub repo in Vercel (Framework Preset: Vite). `vercel.json` sets the build to `npm run build` and the output directory to `dist`.
+2. Set environment variables for **Production** (and **Preview** if you use preview URLs):
+
+   | Variable | Where it is used | Notes |
+   | --- | --- | --- |
+   | `VITE_INSTANT_APP_ID` | Client **build** and auth functions | Inlined into the browser bundle. Required to build. |
+   | `INSTANT_ADMIN_TOKEN` | Auth functions only | Server-only Instant admin token. **Never** prefix this with `VITE_` — Vite would put it in the client bundle. |
+   | `INSTANT_APP_ID` | Auth functions (optional) | Same Instant app id if you want a non-`VITE_` name for serverless. Not needed when `VITE_INSTANT_APP_ID` is set for all environments. |
+
+3. Deploy. Do not commit secrets; configure them in the Vercel project settings (or `vercel env add`). This repo does not run `vercel deploy` for you.
+4. In the Instant dashboard **Auth** tab, add the production origin (for example `https://your-app.vercel.app`) under **Redirect Origins** / allowed origins so the deployed site may talk to Instant. Repeat for each preview origin you actually use. CLI equivalent: `npx instant-cli@latest auth origin add --type website --url https://your-app.vercel.app`.
+5. Open the production URL, create an account, and confirm sign-in.
+
+The app uses `HashRouter` (`/#/…`), so client routes do not need a catch-all rewrite to `index.html`. Do not add a `/(.*)` → `/index.html` rewrite: it can swallow `/api/auth/*`. Those paths are Vercel Node functions (`api/auth/signup.ts`, `api/auth/login.ts`) on the Node runtime.
+
+Local `npm run dev` and `npm run preview` still serve the same two endpoints through Vite middleware. Behavior is unchanged; only the production host needs the serverless routes.
 
 ## Scripts
 
