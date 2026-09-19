@@ -229,6 +229,119 @@ legend.lbl { display: block; padding: 0; }
 
 .auth h1 { font-size: 2.2rem; }
 
+.set-fields { display: flex; flex-direction: column; gap: 10px; }
+.tag-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip:disabled { opacity: 0.45; }
+.chip.on.fail { background: #24302a; color: var(--accent); }
+.chip.on.drop { background: #3a3420; color: #f5d76e; }
+.chip.on.emphasis { background: #243040; color: #9ad4ff; }
+.drops { display: flex; flex-direction: column; gap: 8px; }
+.drop-row {
+  display: grid;
+  grid-template-columns: 56px 1fr 1fr 44px;
+  gap: 8px;
+  align-items: center;
+}
+.overload-cue {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  line-height: 1.4;
+}
+.overload-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: #3a3420;
+  color: #f5d76e;
+}
+.overload-cue.increase .overload-badge { background: #24302a; color: var(--accent); }
+.overload-cue.reduce .overload-badge { background: #3a2424; color: var(--danger); }
+.plan-panel { gap: 10px; }
+.plan-list { gap: 8px; }
+.plan-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+}
+.plan-row:last-child { border-bottom: 0; }
+.plan-sets {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+.plan-sets .step { min-width: 44px; min-height: 44px; }
+.plan-actions { display: flex; align-items: center; gap: 6px; }
+.plan-actions .secondary { width: auto; padding: 0 16px; }
+.empty-log, .empty-card { gap: 8px; }
+.body-layout, .body-map-col, .body-lists-col { display: flex; flex-direction: column; gap: 14px; }
+
 @media (min-width: 800px) {
   .app-shell { box-shadow: 0 0 0 1px var(--line); min-height: 100dvh; }
+}
+
+@media (min-width: 1024px) {
+  .app-shell {
+    width: min(1100px, 100%);
+    padding: 24px 28px calc(120px + env(safe-area-inset-bottom));
+  }
+  .tabbar { width: min(1100px, 100%); }
+  .sheet {
+    width: min(640px, 100%);
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+  }
+  .rest-chip { width: min(480px, calc(100% - 48px)); }
+  .screen.log {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+  .screen.log > .top,
+  .screen.log > .plan-panel,
+  .screen.log > .plan-toggle,
+  .screen.log > .empty-log,
+  .screen.log > .add-ex,
+  .screen.log > .hint,
+  .screen.log > .span-all {
+    grid-column: 1 / -1;
+  }
+  .screen.log > .ex-block:only-of-type { grid-column: 1 / -1; }
+  .set-fields {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .set-fields .step-row {
+    grid-template-columns: auto var(--tap) 1fr var(--tap);
+  }
+  .library-grid,
+  .history-grid,
+  .goals-grid,
+  .plan-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .body-layout {
+    display: grid;
+    grid-template-columns: minmax(320px, 1fr) minmax(340px, 1fr);
+    gap: 24px;
+    align-items: start;
+  }
+  .body-svg { max-height: 64vh; }
 }

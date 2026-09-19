@@ -12,8 +12,13 @@ export function HistoryPage() {
       <header className="top">
         <h1>History</h1>
       </header>
-      {ordered.length === 0 && <p className="muted">No sessions yet. Log one from the home tab.</p>}
-      <ul className="list">
+      {ordered.length === 0 && (
+        <div className="empty-card card">
+          <h2>No sessions yet</h2>
+          <p className="muted">Log a session from the home tab. Sets you record become overload history.</p>
+        </div>
+      )}
+      <ul className="list history-grid">
         {ordered.map((w) => (
           <li key={w.id}>
             <Link className="row" to={`/history/${w.id}`}>

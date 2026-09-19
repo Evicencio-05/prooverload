@@ -119,16 +119,20 @@ export function YouPage() {
         </button>
       </div>
       <h2>Library</h2>
+      <p className="hint">Customs stay on your account with a Custom badge. Suggest one for the shared library when it should be everyone’s movement.</p>
       <input className="search" placeholder="Search" value={q} onChange={(e) => setQ(e.target.value)} />
       {showQuickAdd && (
         <button type="button" className="primary" onClick={() => void quickAddToLibrary(query)}>
           Add «{query}» as custom
         </button>
       )}
+      {!query && customs.length === 0 && (
+        <p className="muted">No customs yet. Add one mid-session from Log search, or use New custom exercise below.</p>
+      )}
       {!query && customs.length > 0 && (
         <>
           <h3>Your customs</h3>
-          <ul className="list">
+          <ul className="list library-grid">
             {customs.map((ex) => (
               <LibraryRow
                 key={ex.id}
@@ -142,7 +146,7 @@ export function YouPage() {
           </ul>
         </>
       )}
-      <ul className="list">
+      <ul className="list library-grid">
         {libraryRows.slice(0, 80).map((ex) => (
           <LibraryRow
             key={ex.id}

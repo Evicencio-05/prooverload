@@ -3,6 +3,7 @@ import { CustomBadge } from '../components/CustomBadge';
 import { SetEditor } from '../components/SetEditor';
 import { ExercisePicker } from '../components/ExercisePicker';
 import { exerciseById } from '../lib/overload';
+import { pendingPlan, workingSetCount } from '../lib/plan';
 import { useApp } from '../state/AppState';
 import { useState } from 'react';
 
@@ -38,14 +39,28 @@ export function SessionPage() {
         )}
       </header>
       <p className="hint">Fix gym typos here. Edits sync to your account.</p>
+      {pendingPlan(workout).length > 0 && (
+        <p className="muted span-all">
+          Planned, not logged:{' '}
+          {pendingPlan(workout)
+            .map((p) => exerciseById(app.catalog, p.exerciseId)?.name)
+            .filter(Boolean)
+            .join(', ')}
+        </p>
+      )}
       {workout.exercises.map((block) => {
         const ex = exerciseById(app.catalog, block.exerciseId);
+        const working = workingSetCount(block);
         return (
         <article key={block.id} className="ex-block">
           <h2 className="row-name">
             {ex?.name}
             {ex?.custom ? <CustomBadge queued={Boolean(ex.promoteRequestedAt)} /> : null}
           </h2>
+          <p className="muted">
+            {working} working
+            {block.targetWorkingSets ? ` / ${block.targetWorkingSets} planned` : ''}
+          </p>
           {block.sets.map((set) => (
             <SetEditor
               key={set.id}
@@ -62,7 +77,7 @@ export function SessionPage() {
         </article>
         );
       })}
-      <button type="button" className="primary huge" onClick={() => setPicker(true)}>
+      <button type="button" className="primary huge add-ex" onClick={() => setPicker(true)}>
         Add exercise
       </button>
       {picker && (

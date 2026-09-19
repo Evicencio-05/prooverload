@@ -6,9 +6,11 @@ Installable as a PWA. Accounts live in InstantDB (cloud auth + sync) with an Ind
 
 ## What it does
 
-- **Log (home):** start or resume today’s session, add an exercise, log weight × reps, optional RPE/notes, big steppers, duplicate last set, warmup vs working, finish. Rest timer is optional and never blocks.
+- **Log (home):** start or resume today’s session, add an exercise, log weight × reps, optional RPE/notes, big steppers, duplicate last set, warmup vs working, finish. Rest timer is optional and never blocks. Working sets default to failure; optional dropset / stretch / contraction tags stay on the set.
+- **Plan:** optional movement queue with a 2–3 working-set target. Logging never waits on a plan.
 - **Library:** common lifts, search, recents, favorites, custom exercises. Each movement maps to primary and secondary muscles.
-- **Overload:** last session loads, suggested next load, working-set history, per-exercise goals.
+- **Overload:** last session loads, a failure-style next-load suggestion (hit 8 → add a plate; miss → hold/reduce), working-set history, per-exercise goals. One tap applies the suggestion.
+- **Desktop:** phone-first PWA shell; from ~1024px the log, library, and body pages use the extra width.
 - **Body:** visual coverage from your own working-set history (not a camera scan). The map uses a finer anatomical model (pec heads, trap divisions, quad/hamstring heads, gastroc vs soleus, etc.). Underworked tissues are called out as training-volume guidance only — not a medical diagnosis.
 - **History:** past sessions stay editable on the phone.
 

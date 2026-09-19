@@ -36,6 +36,8 @@ export function BodyPage() {
         Training-volume guidance from your own sessions — not a diagnosis, injury screen, or body
         scan.
       </p>
+      <div className="body-layout">
+      <div className="body-map-col">
       <div className="seg">
         <button type="button" className={view === 'front' ? 'on' : ''} onClick={() => setView('front')}>
           Front
@@ -56,6 +58,8 @@ export function BodyPage() {
           {line}
         </p>
       ))}
+      </div>
+      <div className="body-lists-col">
       {analysis.underworked.length > 0 && (
         <section>
           <h2>Underworked</h2>
@@ -104,6 +108,8 @@ export function BodyPage() {
           </div>
         ))}
       </section>
+      </div>
+      </div>
     </main>
   );
 }
