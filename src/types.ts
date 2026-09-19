@@ -20,6 +20,8 @@ export type MuscleId =
 
 export type Unit = 'kg' | 'lb';
 
+export type PromoteStatus = 'requested' | 'submitted';
+
 export type CatalogExercise = {
   id: string;
   name: string;
@@ -28,6 +30,12 @@ export type CatalogExercise = {
   primary: MuscleId[];
   secondary: MuscleId[];
   custom?: boolean;
+  /** Present on customExercises JSON so Instant merge can LWW. */
+  updatedAt?: number;
+  /** Client-side promotion queue — stored in customExercises JSON only. */
+  promoteRequestedAt?: number;
+  promoteStatus?: PromoteStatus;
+  promoteNote?: string;
 };
 
 export type LoggedSet = {

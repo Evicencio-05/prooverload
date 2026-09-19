@@ -40,3 +40,12 @@ Instant’s client cache plus a local outbox. If the network drops while you log
 - `npm run dev` — Vite + auth API + PWA
 - `npm run build` — typecheck + production bundle
 - `npm run preview` — production build with auth API
+- `npm run promote-catalog -- --file payload.json` — print a `CATALOG` row from a promote payload or issue body (never opens/merges a PR)
+
+## Catalog intake
+
+Missing movements (e.g. sissy squats) can be added mid-session as **customs**. Customs sync on the user; they are not written into `src/data/exercises.ts` automatically.
+
+From **You → your custom → Suggest for library**, the app stores `promoteRequestedAt` / `promoteStatus` on the custom JSON and shows a copyable payload plus a pre-filled GitHub issue link (`catalog-promote`). There is no GitHub token in the browser.
+
+Bots and humans: see [docs/catalog-intake.md](docs/catalog-intake.md). Typical path is issue or JSON dump → `node scripts/promote-catalog.mjs` → PR adding one row. **Do not auto-merge.**

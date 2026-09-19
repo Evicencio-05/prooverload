@@ -1,8 +1,36 @@
 import { useMemo, useState } from 'react';
 import { searchCatalog } from '../data/exercises';
 import { MUSCLE_LABEL } from '../data/muscles';
+import {
+  findCustomByName,
+  hasUsefulCatalogHits,
+  inferCustomDefaults,
+  titleCaseExerciseName,
+} from '../lib/customCatalog';
 import { useApp } from '../state/AppState';
-import type { CatalogExercise, MuscleId } from '../types';
+import type { CatalogExercise } from '../types';
+import { CustomBadge } from './CustomBadge';
+import { CustomExerciseForm } from './CustomExerciseForm';
+
+function ExercisePickRow({
+  ex,
+  onPick,
+}: {
+  ex: CatalogExercise;
+  onPick: (ex: CatalogExercise) => void;
+}) {
+  return (
+    <button type="button" className="row" onClick={() => onPick(ex)}>
+      <span className="row-main">
+        <span className="row-name">
+          {ex.name}
+          {ex.custom ? <CustomBadge queued={Boolean(ex.promoteRequestedAt)} /> : null}
+        </span>
+        <small>{ex.primary.map((m) => MUSCLE_LABEL[m]).join(', ')}</small>
+      </span>
+    </button>
+  );
+}
 
 export function ExercisePicker({
   onPick,
@@ -11,11 +39,11 @@ export function ExercisePicker({
   onPick: (ex: CatalogExercise) => void;
   onClose: () => void;
 }) {
-  const { catalog, favorites, workouts, saveCustomExercise } = useApp();
+  const { catalog, customExercises, favorites, workouts, saveCustomExercise } = useApp();
   const [q, setQ] = useState('');
   const [creating, setCreating] = useState(false);
-  const [name, setName] = useState('');
-  const [primary, setPrimary] = useState<MuscleId>('chest');
+  const [formKey, setFormKey] = useState(0);
+  const [formDraft, setFormDraft] = useState<Partial<CatalogExercise> | undefined>();
 
   const recent = useMemo(() => {
     const ids: string[] = [];
@@ -33,6 +61,43 @@ export function ExercisePicker({
 
   const favs = catalog.filter((c) => favorites.includes(c.id));
   const results = searchCatalog(catalog, q);
+  const query = q.trim();
+  const usefulHits = hasUsefulCatalogHits(catalog, query);
+  const showQuickAdd = Boolean(query) && !usefulHits;
+
+  function openForm(name: string) {
+    const titled = titleCaseExerciseName(name);
+    const inferred = inferCustomDefaults(name);
+    setFormDraft({
+      name: titled,
+      equipment: inferred.equipment,
+      primary: [inferred.primary],
+      secondary: inferred.secondary,
+    });
+    setFormKey((n) => n + 1);
+    setCreating(true);
+  }
+
+  async function quickAdd(raw: string) {
+    const name = titleCaseExerciseName(raw);
+    const existing = findCustomByName(customExercises, name);
+    if (existing) {
+      onPick(existing);
+      return;
+    }
+    const inferred = inferCustomDefaults(raw);
+    if (!inferred.confident) {
+      openForm(raw);
+      return;
+    }
+    const ex = await saveCustomExercise({
+      name,
+      equipment: inferred.equipment,
+      primary: [inferred.primary],
+      secondary: inferred.secondary,
+    });
+    onPick(ex);
+  }
 
   return (
     <div className="sheet" role="dialog" aria-label="Choose exercise">
@@ -49,65 +114,58 @@ export function ExercisePicker({
         value={q}
         onChange={(e) => setQ(e.target.value)}
       />
-      {!q && favs.length > 0 && (
+      {showQuickAdd && (
+        <button type="button" className="primary huge" onClick={() => void quickAdd(query)}>
+          Add «{query}» as custom
+        </button>
+      )}
+      {showQuickAdd && results.length === 0 && (
+        <p className="hint">No library match. One tap saves it as a custom and adds it to this session.</p>
+      )}
+      {showQuickAdd && results.length > 0 && (
+        <p className="hint">No close name match. Equipment hits are below, or add «{query}» as custom.</p>
+      )}
+      {!query && favs.length > 0 && (
         <section>
           <h3>Favorites</h3>
           {favs.map((ex) => (
-            <button key={ex.id} type="button" className="row" onClick={() => onPick(ex)}>
-              {ex.name}
-            </button>
+            <ExercisePickRow key={ex.id} ex={ex} onPick={onPick} />
           ))}
         </section>
       )}
-      {!q && recent.length > 0 && (
+      {!query && recent.length > 0 && (
         <section>
           <h3>Recent</h3>
           {recent.map((ex) => (
-            <button key={ex.id} type="button" className="row" onClick={() => onPick(ex)}>
-              {ex.name}
-            </button>
+            <ExercisePickRow key={ex.id} ex={ex} onPick={onPick} />
           ))}
         </section>
       )}
       <section>
-        <h3>{q ? 'Results' : 'Library'}</h3>
-        {(q ? results : catalog).slice(0, 60).map((ex) => (
-          <button key={ex.id} type="button" className="row" onClick={() => onPick(ex)}>
-            <span>{ex.name}</span>
-            <small>{ex.primary.map((m) => MUSCLE_LABEL[m]).join(', ')}</small>
-          </button>
+        <h3>{query ? 'Results' : 'Library'}</h3>
+        {(query ? results : catalog).slice(0, 60).map((ex) => (
+          <ExercisePickRow key={ex.id} ex={ex} onPick={onPick} />
         ))}
       </section>
-      <button type="button" className="secondary" onClick={() => setCreating((v) => !v)}>
-        Custom exercise
+      <button
+        type="button"
+        className="secondary"
+        onClick={() => {
+          if (creating) {
+            setCreating(false);
+            return;
+          }
+          openForm(query);
+        }}
+      >
+        {creating ? 'Cancel custom' : 'Custom exercise'}
       </button>
       {creating && (
-        <form
-          className="stack"
-          onSubmit={async (e) => {
-            e.preventDefault();
-            if (!name.trim()) return;
-            const ex = await saveCustomExercise({
-              name: name.trim(),
-              equipment: 'other',
-              primary: [primary],
-              secondary: [],
-            });
-            onPick(ex);
-          }}
-        >
-          <input placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} />
-          <select value={primary} onChange={(e) => setPrimary(e.target.value as MuscleId)}>
-            {Object.entries(MUSCLE_LABEL).map(([id, label]) => (
-              <option key={id} value={id}>
-                {label}
-              </option>
-            ))}
-          </select>
-          <button type="submit" className="primary">
-            Save & add
-          </button>
-        </form>
+        <CustomExerciseForm
+          key={formKey}
+          draft={formDraft}
+          onSaved={(ex) => onPick(ex)}
+        />
       )}
     </div>
   );
