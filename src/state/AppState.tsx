@@ -14,11 +14,19 @@ import { db, instantConfigError } from '../lib/instant';
 import { idbGet, idbSet, outboxAll } from '../lib/idb';
 import { uid, todayKey } from '../lib/ids';
 import { flushOutbox, listenUserData, writeCloud } from '../lib/sync';
-import { lastSessionForExercise, suggestNextLoad } from '../lib/overload';
+import { buildDefaultSet, lastSessionForExercise, suggestNextLoad } from '../lib/overload';
+import {
+  addMovementToPlan,
+  consumePlanForExercise,
+  removePlanItem,
+  updatePlanItem,
+} from '../lib/plan';
 import type {
   CatalogExercise,
   Goal,
   LoggedSet,
+  PlannedExercise,
+  SetEmphasis,
   Unit,
   UserProfile,
   Workout,
@@ -97,12 +105,28 @@ type Api = State & {
   signOut: () => Promise<void>;
   startToday: () => Promise<Workout>;
   finishWorkout: (workoutId: string) => Promise<void>;
-  addExercise: (workoutId: string, exerciseId: string) => Promise<void>;
+  addExercise: (
+    workoutId: string,
+    exerciseId: string,
+    opts?: { targetWorkingSets?: number; emphasis?: SetEmphasis | null },
+  ) => Promise<void>;
   removeExercise: (workoutId: string, blockId: string) => Promise<void>;
   addSet: (workoutId: string, blockId: string, partial?: Partial<LoggedSet>) => Promise<void>;
+  applyOverload: (workoutId: string, blockId: string) => Promise<void>;
   updateSet: (workoutId: string, blockId: string, setId: string, patch: Partial<LoggedSet>) => Promise<void>;
   duplicateLastSet: (workoutId: string, blockId: string) => Promise<void>;
   deleteSet: (workoutId: string, blockId: string, setId: string) => Promise<void>;
+  addToPlan: (
+    workoutId: string,
+    exerciseId: string,
+    opts?: { targetWorkingSets?: number; emphasis?: SetEmphasis | null },
+  ) => Promise<void>;
+  updatePlan: (
+    workoutId: string,
+    planId: string,
+    patch: Partial<Pick<PlannedExercise, 'targetWorkingSets' | 'emphasis'>>,
+  ) => Promise<void>;
+  removeFromPlan: (workoutId: string, planId: string) => Promise<void>;
   saveWorkout: (workout: Workout) => Promise<void>;
   toggleFavorite: (exerciseId: string) => Promise<void>;
   saveCustomExercise: (ex: Omit<CatalogExercise, 'id' | 'custom'> & { id?: string }) => Promise<CatalogExercise>;
@@ -308,11 +332,33 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           finishedAt: Date.now(),
         }));
       },
-      async addExercise(workoutId, exerciseId) {
+      async addExercise(workoutId, exerciseId, opts) {
         await patchWorkout(workoutId, (w) => {
-          if (w.exercises.some((e) => e.exerciseId === exerciseId)) return w;
-          const block: WorkoutExercise = { id: uid('ex'), exerciseId, sets: [] };
-          return { ...w, exercises: [...w.exercises, block] };
+          if (w.exercises.some((e) => e.exerciseId === exerciseId)) {
+            const consumed = consumePlanForExercise(w, exerciseId);
+            return {
+              ...w,
+              plan: consumed.plan,
+              exercises: w.exercises.map((e) =>
+                e.exerciseId === exerciseId
+                  ? {
+                      ...e,
+                      targetWorkingSets: opts?.targetWorkingSets ?? consumed.targetWorkingSets ?? e.targetWorkingSets,
+                      plannedEmphasis: opts?.emphasis ?? consumed.plannedEmphasis ?? e.plannedEmphasis,
+                    }
+                  : e,
+              ),
+            };
+          }
+          const consumed = consumePlanForExercise(w, exerciseId);
+          const block: WorkoutExercise = {
+            id: uid('ex'),
+            exerciseId,
+            sets: [],
+            targetWorkingSets: opts?.targetWorkingSets ?? consumed.targetWorkingSets,
+            plannedEmphasis: opts?.emphasis ?? consumed.plannedEmphasis ?? null,
+          };
+          return { ...w, plan: consumed.plan, exercises: [...w.exercises, block] };
         });
       },
       async removeExercise(workoutId, blockId) {
@@ -326,21 +372,54 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           ...w,
           exercises: w.exercises.map((e) => {
             if (e.id !== blockId) return e;
-            const last = [...e.sets].reverse()[0];
+            const last = e.sets.at(-1);
+            const lastWorking = [...e.sets].reverse().find((s) => !s.warmup);
             const prior = lastSessionForExercise(stateRef.current.workouts, e.exerciseId, workoutId);
             const suggestion = prior
               ? suggestNextLoad(prior.block.sets, stateRef.current.profile.unit)
               : undefined;
             const priorWorking = prior?.block.sets.filter((s) => !s.warmup).at(-1);
-            const set: LoggedSet = {
+            const set = buildDefaultSet({
               id: uid('set'),
-              weight: partial?.weight ?? last?.weight ?? suggestion?.weight ?? priorWorking?.weight ?? 0,
-              reps: partial?.reps ?? last?.reps ?? priorWorking?.reps ?? 8,
-              rpe: partial?.rpe ?? null,
-              notes: partial?.notes ?? '',
-              warmup: partial?.warmup ?? false,
-              completedAt: Date.now(),
-            };
+              last,
+              lastWorking,
+              suggestion,
+              priorWorking,
+              partial: {
+                ...partial,
+                emphasis: partial?.emphasis ?? e.plannedEmphasis ?? lastWorking?.emphasis ?? null,
+              },
+            });
+            return { ...e, sets: [...e.sets, set] };
+          }),
+        }));
+      },
+      async applyOverload(workoutId, blockId) {
+        const current = stateRef.current.workouts.find((w) => w.id === workoutId);
+        const block = current?.exercises.find((e) => e.id === blockId);
+        if (!current || !block) return;
+        const prior = lastSessionForExercise(stateRef.current.workouts, block.exerciseId, workoutId);
+        const suggestion = prior
+          ? suggestNextLoad(prior.block.sets, stateRef.current.profile.unit)
+          : undefined;
+        if (!suggestion) return;
+        await patchWorkout(workoutId, (w) => ({
+          ...w,
+          exercises: w.exercises.map((e) => {
+            if (e.id !== blockId) return e;
+            const set = buildDefaultSet({
+              id: uid('set'),
+              last: e.sets.at(-1),
+              lastWorking: [...e.sets].reverse().find((s) => !s.warmup),
+              suggestion,
+              partial: {
+                weight: suggestion.weight,
+                reps: suggestion.reps,
+                warmup: false,
+                toFailure: true,
+                emphasis: e.plannedEmphasis ?? null,
+              },
+            });
             return { ...e, sets: [...e.sets, set] };
           }),
         }));
@@ -382,6 +461,21 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
             e.id !== blockId ? e : { ...e, sets: e.sets.filter((s) => s.id !== setId) },
           ),
         }));
+      },
+      async addToPlan(workoutId, exerciseId, opts) {
+        await patchWorkout(workoutId, (w) =>
+          addMovementToPlan(w, exerciseId, {
+            id: uid('plan'),
+            targetWorkingSets: opts?.targetWorkingSets,
+            emphasis: opts?.emphasis,
+          }),
+        );
+      },
+      async updatePlan(workoutId, planId, patch) {
+        await patchWorkout(workoutId, (w) => updatePlanItem(w, planId, patch));
+      },
+      async removeFromPlan(workoutId, planId) {
+        await patchWorkout(workoutId, (w) => removePlanItem(w, planId));
       },
       async toggleFavorite(exerciseId) {
         const on = !stateRef.current.favorites.includes(exerciseId);

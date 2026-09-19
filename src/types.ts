@@ -79,6 +79,13 @@ export type CatalogExercise = {
   promoteNote?: string;
 };
 
+export type SetEmphasis = 'stretch' | 'contraction';
+
+export type DropStep = {
+  weight: number;
+  reps: number;
+};
+
 export type LoggedSet = {
   id: string;
   weight: number;
@@ -87,12 +94,28 @@ export type LoggedSet = {
   notes?: string;
   warmup: boolean;
   completedAt: number;
+  /** Working-set default is true; warmups stay unmarked. */
+  toFailure?: boolean;
+  dropset?: boolean;
+  /** Optional extra drops after the logged top weight × reps. */
+  drops?: DropStep[];
+  emphasis?: SetEmphasis | null;
+};
+
+export type PlannedExercise = {
+  id: string;
+  exerciseId: string;
+  targetWorkingSets: number;
+  emphasis?: SetEmphasis | null;
 };
 
 export type WorkoutExercise = {
   id: string;
   exerciseId: string;
   sets: LoggedSet[];
+  /** Copied from the session plan when the block is started. */
+  targetWorkingSets?: number;
+  plannedEmphasis?: SetEmphasis | null;
 };
 
 export type Workout = {
@@ -103,6 +126,8 @@ export type Workout = {
   finishedAt?: number;
   updatedAt: number;
   exercises: WorkoutExercise[];
+  /** Lightweight queue; logging never requires a plan. */
+  plan?: PlannedExercise[];
 };
 
 export type GoalKind = 'weight' | 'reps' | 'date';

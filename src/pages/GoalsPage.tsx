@@ -11,8 +11,13 @@ export function GoalsPage() {
         <h1>Goals</h1>
       </header>
       <p className="hint">Set targets from any exercise on the Log tab. Progress uses your working-set history.</p>
-      {rows.length === 0 && <p className="muted">No goals yet.</p>}
-      <ul className="list">
+      {rows.length === 0 && (
+        <div className="empty-card card">
+          <h2>No goals yet</h2>
+          <p className="muted">Open any movement on Log and tap Set goal. Overload cues stay optional.</p>
+        </div>
+      )}
+      <ul className="list goals-grid">
         {rows.map((g) => {
           const ex = exerciseById(app.catalog, g.exerciseId);
           const best = bestForGoal(app.workouts, g.exerciseId);

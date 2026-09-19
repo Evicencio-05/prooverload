@@ -35,9 +35,11 @@ function ExercisePickRow({
 export function ExercisePicker({
   onPick,
   onClose,
+  title = 'Add exercise',
 }: {
   onPick: (ex: CatalogExercise) => void;
   onClose: () => void;
+  title?: string;
 }) {
   const { catalog, customExercises, favorites, workouts, saveCustomExercise } = useApp();
   const [q, setQ] = useState('');
@@ -102,7 +104,7 @@ export function ExercisePicker({
   return (
     <div className="sheet" role="dialog" aria-label="Choose exercise">
       <div className="sheet-handle">
-        <strong>Add exercise</strong>
+        <strong>{title}</strong>
         <button type="button" className="ghost" onClick={onClose}>
           Close
         </button>
