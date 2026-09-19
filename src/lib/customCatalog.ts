@@ -1,5 +1,6 @@
-import { DEFAULT_MUSCLE_ID } from '../data/muscles';
 import type { CatalogExercise, MuscleId } from '../types';
+
+const FALLBACK_MUSCLE: MuscleId = 'pectoralis_sternal';
 
 export const EQUIPMENT_OPTIONS = [
   { id: 'barbell', label: 'Barbell' },
@@ -89,7 +90,7 @@ export function inferCustomDefaults(query: string): {
     if (equipment === 'other' && rule.bodyweight) equipment = 'bodyweight';
     return { equipment, primary: rule.primary, secondary: rule.secondary, confident: true };
   }
-  return { equipment, primary: DEFAULT_MUSCLE_ID, secondary: [], confident: false };
+  return { equipment, primary: FALLBACK_MUSCLE, secondary: [], confident: false };
 }
 
 export function matchesNameOrAlias(ex: CatalogExercise, query: string): boolean {

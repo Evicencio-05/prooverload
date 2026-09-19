@@ -9,7 +9,7 @@
     "lint": "oxlint",
     "preview": "vite preview --host 0.0.0.0 --port 4173",
     "promote-catalog": "node scripts/promote-catalog.mjs",
-    "smoke": "node scripts/phase1-smoke.mjs && node scripts/phase2-smoke.mjs && node scripts/promote-catalog.mjs --self-test"
+    "smoke": "tsx scripts/phase1-smoke.mjs && tsx scripts/phase2-smoke.mjs && node scripts/promote-catalog.mjs --self-test"
   },
   "dependencies": {
     "@instantdb/admin": "^1.0.67",
@@ -25,6 +25,7 @@
     "@types/react-dom": "^19.2.7",
     "@vitejs/plugin-react": "^6.1.1",
     "oxlint": "^1.81.0",
+    "tsx": "^4.23.13",
     "typescript": "~6.0.2",
     "vite": "^8.3.0",
     "vite-plugin-pwa": "^1.1.0"

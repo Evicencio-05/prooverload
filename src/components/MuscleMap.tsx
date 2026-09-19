@@ -23,13 +23,7 @@ function Region({
   mirror?: boolean;
 }) {
   const path = (
-    <path
-      d={d}
-      fill={fill}
-      stroke="#101418"
-      strokeWidth="0.65"
-      strokeLinejoin="round"
-    >
+    <path d={d} fill={fill} stroke="#101418" strokeWidth="0.7" strokeLinejoin="round">
       <title>{MUSCLE_LABEL[id]}</title>
     </path>
   );
@@ -41,7 +35,7 @@ function Region({
         d={d}
         fill={fill}
         stroke="#101418"
-        strokeWidth="0.65"
+        strokeWidth="0.7"
         strokeLinejoin="round"
         transform="translate(200 0) scale(-1 1)"
       >
@@ -65,56 +59,58 @@ export function MuscleMap({
     return (
       <svg viewBox="0 0 200 420" className="body-svg" role="img" aria-label="Front muscle map">
         <rect width="200" height="420" fill="transparent" />
-        <ellipse cx="100" cy="26" rx="18" ry="22" fill="#3a444c" />
-        <Region id="sternocleidomastoid" fill={paint('sternocleidomastoid')} mirror d="M88 46 C94 44 98 50 96 58 L90 66 C84 62 84 50 88 46 Z" />
-        <Region id="trapezius_upper" fill={paint('trapezius_upper')} mirror d="M68 54 C78 48 88 50 90 60 L84 70 C74 68 64 62 68 54 Z" />
-        <Region id="lateral_deltoid" fill={paint('lateral_deltoid')} mirror d="M36 82 C44 68 56 70 54 92 L48 128 C36 118 30 96 36 82 Z" />
-        <Region id="anterior_deltoid" fill={paint('anterior_deltoid')} mirror d="M52 78 C64 66 76 74 80 108 L70 136 C56 122 44 98 52 78 Z" />
-        <Region id="pectoralis_clavicular" fill={paint('pectoralis_clavicular')} mirror d="M78 78 C86 70 98 72 100 76 L100 108 C94 110 84 112 80 108 Z" />
-        <Region id="pectoralis_sternal" fill={paint('pectoralis_sternal')} mirror d="M80 108 C86 110 96 110 100 108 L100 144 C94 146 84 148 78 144 Z" />
-        <Region id="pectoralis_costal" fill={paint('pectoralis_costal')} mirror d="M78 144 C86 148 96 146 100 144 L100 166 C92 168 84 166 80 162 Z" />
-        <Region id="serratus_anterior" fill={paint('serratus_anterior')} mirror d="M68 128 C78 132 82 148 80 168 L70 176 C62 160 60 138 68 128 Z" />
-        <Region id="biceps_brachii" fill={paint('biceps_brachii')} mirror d="M40 118 C50 112 60 122 58 150 L54 180 C44 176 36 150 40 118 Z" />
-        <Region id="brachialis" fill={paint('brachialis')} mirror d="M56 132 C64 128 68 140 66 164 L60 182 C54 178 52 150 56 132 Z" />
-        <Region id="brachioradialis" fill={paint('brachioradialis')} mirror d="M34 176 C46 172 54 184 50 210 L44 230 C34 226 28 196 34 176 Z" />
-        <Region id="wrist_flexors" fill={paint('wrist_flexors')} mirror d="M28 226 C40 222 48 232 44 250 L38 268 C28 264 24 240 28 226 Z" />
-        <Region id="rectus_abdominis" fill={paint('rectus_abdominis')} d="M86 166 C96 164 104 164 114 166 L110 228 C104 230 96 230 90 228 Z" />
-        <Region id="obliques" fill={paint('obliques')} mirror d="M70 168 C82 172 86 186 88 220 L70 218 C64 198 62 176 70 168 Z" />
-        <Region id="iliopsoas" fill={paint('iliopsoas')} mirror d="M80 220 C90 222 98 228 96 246 L84 252 C76 240 74 226 80 220 Z" />
-        <Region id="vastus_lateralis" fill={paint('vastus_lateralis')} mirror d="M64 228 C74 224 82 236 80 280 L76 322 C64 318 58 270 64 228 Z" />
-        <Region id="rectus_femoris" fill={paint('rectus_femoris')} mirror d="M80 230 C90 226 98 234 96 286 L92 318 C84 320 78 270 80 230 Z" />
-        <Region id="vastus_medialis" fill={paint('vastus_medialis')} mirror d="M82 278 C92 276 100 286 98 310 L94 332 C84 334 78 300 82 278 Z" />
-        <Region id="tibialis_anterior" fill={paint('tibialis_anterior')} mirror d="M72 332 C84 330 90 344 88 372 L84 392 C74 390 68 356 72 332 Z" />
-        <Region id="gastrocnemius" fill={paint('gastrocnemius')} mirror d="M64 336 C70 334 74 348 72 372 L66 380 C60 368 58 346 64 336 Z" />
+        <ellipse cx="100" cy="28" rx="22" ry="26" fill="#3a444c" />
+        <path d="M88 48 H112 L116 64 H84 Z" fill="#3a444c" />
+        <Region id="sternocleidomastoid" fill={paint('sternocleidomastoid')} mirror d="M84 48 C90 46 96 50 94 60 L88 66 C82 60 80 50 84 48 Z" />
+        <Region id="trapezius_upper" fill={paint('trapezius_upper')} d="M70 58 C70 48 130 48 130 58 L138 92 C120 86 80 86 62 92 Z" />
+        <Region id="lateral_deltoid" fill={paint('lateral_deltoid')} mirror d="M48 88 C58 74 68 80 66 108 L58 148 C46 134 40 110 48 88 Z" />
+        <Region id="anterior_deltoid" fill={paint('anterior_deltoid')} mirror d="M64 84 C74 70 82 92 88 128 L70 168 C62 148 58 118 64 84 Z" />
+        <Region id="pectoralis_clavicular" fill={paint('pectoralis_clavicular')} d="M88 96 H112 L114 120 H86 Z" />
+        <Region id="pectoralis_sternal" fill={paint('pectoralis_sternal')} d="M86 120 H114 L116 146 H84 Z" />
+        <Region id="pectoralis_costal" fill={paint('pectoralis_costal')} d="M84 146 H116 L118 168 H82 Z" />
+        <Region id="serratus_anterior" fill={paint('serratus_anterior')} mirror d="M68 132 L82 140 L80 168 L66 160 Z" />
+        <Region id="biceps_brachii" fill={paint('biceps_brachii')} mirror d="M40 120 C50 128 54 156 50 186 L36 182 C34 150 34 128 40 120 Z" />
+        <Region id="brachialis" fill={paint('brachialis')} mirror d="M52 132 C58 136 60 160 56 188 L48 186 C48 160 48 140 52 132 Z" />
+        <Region id="brachioradialis" fill={paint('brachioradialis')} mirror d="M32 186 L54 192 L50 220 L30 214 Z" />
+        <Region id="wrist_flexors" fill={paint('wrist_flexors')} mirror d="M30 214 L50 220 L48 250 L28 244 Z" />
+        <Region id="rectus_abdominis" fill={paint('rectus_abdominis')} d="M86 168 H114 L110 220 H90 Z" />
+        <Region id="obliques" fill={paint('obliques')} mirror d="M70 170 L86 176 L90 220 L68 214 Z" />
+        <Region id="iliopsoas" fill={paint('iliopsoas')} mirror d="M82 216 L100 220 L96 242 L84 238 Z" />
+        <Region id="vastus_lateralis" fill={paint('vastus_lateralis')} mirror d="M72 220 H84 L80 328 H68 Z" />
+        <Region id="rectus_femoris" fill={paint('rectus_femoris')} mirror d="M84 220 H100 L96 292 H82 Z" />
+        <Region id="vastus_medialis" fill={paint('vastus_medialis')} mirror d="M82 286 H96 L96 330 H80 Z" />
+        <Region id="tibialis_anterior" fill={paint('tibialis_anterior')} mirror d="M74 328 L96 332 L92 390 L76 384 Z" />
+        <Region id="gastrocnemius" fill={paint('gastrocnemius')} mirror d="M68 328 L76 330 L74 372 L66 366 Z" />
       </svg>
     );
   }
 
   return (
     <svg viewBox="0 0 200 420" className="body-svg" role="img" aria-label="Back muscle map">
-      <ellipse cx="100" cy="26" rx="18" ry="22" fill="#3a444c" />
-      <Region id="trapezius_upper" fill={paint('trapezius_upper')} d="M68 52 C80 44 120 44 132 52 L148 80 C120 70 80 70 52 80 Z" />
-      <Region id="sternocleidomastoid" fill={paint('sternocleidomastoid')} mirror d="M90 46 C96 44 100 50 98 58 L94 64 C88 62 86 50 90 46 Z" />
-      <Region id="posterior_deltoid" fill={paint('posterior_deltoid')} mirror d="M46 80 C64 66 76 80 80 118 L66 148 C48 132 38 104 46 80 Z" />
-      <Region id="lateral_deltoid" fill={paint('lateral_deltoid')} mirror d="M34 84 C42 70 52 74 50 98 L44 126 C34 118 28 98 34 84 Z" />
-      <Region id="trapezius_mid" fill={paint('trapezius_mid')} d="M86 78 C96 74 104 74 114 78 L118 116 C110 120 90 120 82 116 Z" />
-      <Region id="rhomboids" fill={paint('rhomboids')} mirror d="M82 98 C90 94 98 100 98 124 L90 140 C80 132 76 110 82 98 Z" />
-      <Region id="rotator_cuff" fill={paint('rotator_cuff')} mirror d="M72 96 C84 90 92 100 90 126 L80 142 C68 134 64 110 72 96 Z" />
-      <Region id="teres_major" fill={paint('teres_major')} mirror d="M66 128 C76 122 86 130 84 148 L74 160 C64 152 60 136 66 128 Z" />
-      <Region id="trapezius_lower" fill={paint('trapezius_lower')} d="M90 118 C100 116 110 116 110 118 L106 170 C102 176 98 176 94 170 Z" />
-      <Region id="latissimus_dorsi" fill={paint('latissimus_dorsi')} mirror d="M56 118 C72 110 88 128 86 168 L76 202 C58 188 46 148 56 118 Z" />
-      <Region id="triceps_lateral" fill={paint('triceps_lateral')} mirror d="M30 118 C40 110 48 124 46 158 L40 178 C30 174 26 140 30 118 Z" />
-      <Region id="triceps_long" fill={paint('triceps_long')} mirror d="M42 122 C52 116 60 128 58 160 L52 188 C42 184 36 148 42 122 Z" />
-      <Region id="triceps_medial" fill={paint('triceps_medial')} mirror d="M36 168 C48 164 54 172 52 186 L46 198 C36 196 30 180 36 168 Z" />
-      <Region id="wrist_extensors" fill={paint('wrist_extensors')} mirror d="M28 186 C40 182 48 192 44 226 L38 258 C28 254 24 210 28 186 Z" />
-      <Region id="erector_spinae" fill={paint('erector_spinae')} d="M90 172 C100 170 110 170 110 172 L108 228 C104 232 96 232 92 228 Z" />
-      <Region id="gluteus_medius" fill={paint('gluteus_medius')} mirror d="M64 220 C76 214 88 220 86 244 L74 250 C62 242 58 228 64 220 Z" />
-      <Region id="gluteus_maximus" fill={paint('gluteus_maximus')} mirror d="M70 234 C84 228 99 232 100 248 L100 280 C88 286 74 282 68 268 Z" />
-      <Region id="biceps_femoris" fill={paint('biceps_femoris')} mirror d="M68 276 C80 272 88 284 86 320 L80 348 C68 344 62 310 68 276 Z" />
-      <Region id="semitendinosus" fill={paint('semitendinosus')} mirror d="M86 278 C96 274 102 286 100 320 L96 348 C88 350 82 310 86 278 Z" />
-      <Region id="adductors" fill={paint('adductors')} mirror d="M90 282 C98 280 104 292 102 324 L96 342 C90 344 86 310 90 282 Z" />
-      <Region id="gastrocnemius" fill={paint('gastrocnemius')} mirror d="M68 344 C82 340 94 350 92 372 L86 384 C74 386 64 366 68 344 Z" />
-      <Region id="soleus" fill={paint('soleus')} mirror d="M66 372 C80 368 92 378 90 396 L84 408 C72 410 62 390 66 372 Z" />
+      <ellipse cx="100" cy="28" rx="22" ry="26" fill="#3a444c" />
+      <path d="M88 48 H112 L116 64 H84 Z" fill="#3a444c" />
+      <Region id="sternocleidomastoid" fill={paint('sternocleidomastoid')} mirror d="M86 48 C92 46 98 50 96 58 L90 64 C84 60 82 50 86 48 Z" />
+      <Region id="trapezius_upper" fill={paint('trapezius_upper')} d="M68 56 C78 48 122 48 132 56 L148 88 C120 78 80 78 52 88 Z" />
+      <Region id="lateral_deltoid" fill={paint('lateral_deltoid')} mirror d="M48 88 C56 74 64 80 62 108 L54 146 C44 132 38 110 48 88 Z" />
+      <Region id="posterior_deltoid" fill={paint('posterior_deltoid')} mirror d="M60 86 C72 70 80 96 84 130 L66 170 C58 148 52 116 60 86 Z" />
+      <Region id="trapezius_mid" fill={paint('trapezius_mid')} d="M86 92 H114 L116 122 H84 Z" />
+      <Region id="rhomboids" fill={paint('rhomboids')} d="M82 120 H118 L116 142 H84 Z" />
+      <Region id="rotator_cuff" fill={paint('rotator_cuff')} mirror d="M70 98 L86 104 L84 140 L68 128 Z" />
+      <Region id="teres_major" fill={paint('teres_major')} mirror d="M72 138 L90 144 L88 162 L70 154 Z" />
+      <Region id="trapezius_lower" fill={paint('trapezius_lower')} d="M90 140 H110 L108 176 H92 Z" />
+      <Region id="latissimus_dorsi" fill={paint('latissimus_dorsi')} d="M78 156 H122 L118 200 H82 Z" />
+      <Region id="triceps_lateral" fill={paint('triceps_lateral')} mirror d="M36 122 C44 118 50 140 48 168 L36 164 C32 142 32 128 36 122 Z" />
+      <Region id="triceps_long" fill={paint('triceps_long')} mirror d="M46 126 C54 128 58 156 54 186 L42 182 C42 154 42 134 46 126 Z" />
+      <Region id="triceps_medial" fill={paint('triceps_medial')} mirror d="M38 168 C50 166 54 180 50 196 L34 190 C32 176 34 170 38 168 Z" />
+      <Region id="wrist_extensors" fill={paint('wrist_extensors')} mirror d="M32 188 L52 194 L48 250 L28 244 Z" />
+      <Region id="erector_spinae" fill={paint('erector_spinae')} d="M88 198 H112 L108 230 H92 Z" />
+      <Region id="gluteus_medius" fill={paint('gluteus_medius')} mirror d="M70 228 H90 L88 252 H68 Z" />
+      <Region id="gluteus_maximus" fill={paint('gluteus_maximus')} mirror d="M70 248 H100 L108 280 H74 Z" />
+      <Region id="biceps_femoris" fill={paint('biceps_femoris')} mirror d="M74 278 H88 L84 340 H70 Z" />
+      <Region id="semitendinosus" fill={paint('semitendinosus')} mirror d="M88 278 H100 L96 340 H82 Z" />
+      <Region id="adductors" fill={paint('adductors')} d="M88 300 H112 L110 338 H90 Z" />
+      <Region id="gastrocnemius" fill={paint('gastrocnemius')} mirror d="M70 338 L96 342 L94 374 L70 370 Z" />
+      <Region id="soleus" fill={paint('soleus')} mirror d="M70 368 L94 374 L94 398 L68 392 Z" />
     </svg>
   );
 }

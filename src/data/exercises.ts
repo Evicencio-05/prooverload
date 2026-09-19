@@ -1,4 +1,3 @@
-import { MUSCLE_LABEL } from './muscles';
 import type { CatalogExercise } from '../types';
 
 export const CATALOG: CatalogExercise[] = [
@@ -86,6 +85,7 @@ export function searchCatalog(list: CatalogExercise[], query: string): CatalogEx
     if (ex.name.toLowerCase().includes(q)) return true;
     if (ex.equipment.toLowerCase().includes(q)) return true;
     if ((ex.aliases ?? []).some((a) => a.toLowerCase().includes(q))) return true;
-    return [...ex.primary, ...ex.secondary].some((id) => MUSCLE_LABEL[id]?.toLowerCase().includes(q));
+    const needle = q.replace(/\s+/g, '_');
+    return [...ex.primary, ...ex.secondary].some((id) => id.includes(needle));
   });
 }

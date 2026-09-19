@@ -12,7 +12,83 @@
 import { readFileSync, existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { MUSCLE_ID_SET, remapMuscleIds } from '../src/data/muscles.ts';
+
+/** Keep in sync with src/data/muscles.ts */
+const MUSCLE_ID_SET = new Set([
+  'sternocleidomastoid',
+  'pectoralis_clavicular',
+  'pectoralis_sternal',
+  'pectoralis_costal',
+  'serratus_anterior',
+  'anterior_deltoid',
+  'lateral_deltoid',
+  'posterior_deltoid',
+  'triceps_long',
+  'triceps_lateral',
+  'triceps_medial',
+  'biceps_brachii',
+  'brachialis',
+  'brachioradialis',
+  'wrist_flexors',
+  'wrist_extensors',
+  'trapezius_upper',
+  'trapezius_mid',
+  'trapezius_lower',
+  'rhomboids',
+  'latissimus_dorsi',
+  'teres_major',
+  'rotator_cuff',
+  'erector_spinae',
+  'rectus_abdominis',
+  'obliques',
+  'iliopsoas',
+  'gluteus_maximus',
+  'gluteus_medius',
+  'rectus_femoris',
+  'vastus_lateralis',
+  'vastus_medialis',
+  'biceps_femoris',
+  'semitendinosus',
+  'adductors',
+  'gastrocnemius',
+  'soleus',
+  'tibialis_anterior',
+]);
+
+const LEGACY_MUSCLE_MAP = {
+  chest: ['pectoralis_clavicular', 'pectoralis_sternal', 'pectoralis_costal'],
+  upper_back: ['rhomboids', 'trapezius_mid'],
+  lats: ['latissimus_dorsi'],
+  traps: ['trapezius_upper', 'trapezius_mid', 'trapezius_lower'],
+  lower_back: ['erector_spinae'],
+  front_delts: ['anterior_deltoid'],
+  side_delts: ['lateral_deltoid'],
+  rear_delts: ['posterior_deltoid'],
+  biceps: ['biceps_brachii'],
+  triceps: ['triceps_long', 'triceps_lateral', 'triceps_medial'],
+  forearms: ['brachioradialis', 'wrist_flexors', 'wrist_extensors'],
+  abs: ['rectus_abdominis'],
+  glutes: ['gluteus_maximus', 'gluteus_medius'],
+  quads: ['rectus_femoris', 'vastus_lateralis', 'vastus_medialis'],
+  hamstrings: ['biceps_femoris', 'semitendinosus'],
+  calves: ['gastrocnemius', 'soleus'],
+};
+
+function remapMuscleIds(ids) {
+  const out = [];
+  const seen = new Set();
+  for (const raw of ids ?? []) {
+    const id = String(raw).trim();
+    if (!id) continue;
+    const mapped = MUSCLE_ID_SET.has(id) ? [id] : LEGACY_MUSCLE_MAP[id] ?? [];
+    for (const next of mapped) {
+      if (seen.has(next)) continue;
+      seen.add(next);
+      out.push(next);
+    }
+  }
+  return out;
+}
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const CATALOG_PATH = join(ROOT, 'src/data/exercises.ts');
