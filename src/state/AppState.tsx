@@ -105,6 +105,7 @@ type Api = State & {
   saveWorkout: (workout: Workout) => Promise<void>;
   toggleFavorite: (exerciseId: string) => Promise<void>;
   saveCustomExercise: (ex: Omit<CatalogExercise, 'id' | 'custom'> & { id?: string }) => Promise<CatalogExercise>;
+  requestPromote: (exerciseId: string, note?: string) => Promise<CatalogExercise | null>;
   saveGoal: (goal: Goal) => Promise<void>;
   deleteGoal: (id: string) => Promise<void>;
   setUnit: (unit: Unit) => Promise<void>;
@@ -396,9 +397,34 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         );
       },
       async saveCustomExercise(ex) {
+        const prior = ex.id
+          ? stateRef.current.customExercises.find((e) => e.id === ex.id)
+          : undefined;
         const row: CatalogExercise = {
+          ...prior,
           ...ex,
-          id: ex.id ?? uid('cux'),
+          id: ex.id ?? prior?.id ?? uid(),
+          custom: true,
+          updatedAt: Date.now(),
+        };
+        const customExercises = [
+          ...stateRef.current.customExercises.filter((e) => e.id !== row.id),
+          row,
+        ];
+        dispatch({ type: 'set', payload: { customExercises } });
+        await persistLocal({ customExercises });
+        await enqueue('customExercises', row.id, row);
+        return row;
+      },
+      async requestPromote(exerciseId, note) {
+        const existing = stateRef.current.customExercises.find((e) => e.id === exerciseId);
+        if (!existing) return null;
+        const row: CatalogExercise = {
+          ...existing,
+          promoteRequestedAt: existing.promoteRequestedAt ?? Date.now(),
+          promoteStatus: existing.promoteStatus === 'submitted' ? 'submitted' : 'requested',
+          promoteNote: note?.trim() ? note.trim() : existing.promoteNote,
+          updatedAt: Date.now(),
           custom: true,
         };
         const customExercises = [

@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { CustomBadge } from '../components/CustomBadge';
 import { ExercisePicker } from '../components/ExercisePicker';
 import { RestChip } from '../components/RestChip';
 import { SetEditor } from '../components/SetEditor';
@@ -57,7 +58,10 @@ export function LogPage() {
           <article key={block.id} className="ex-block">
             <div className="ex-head">
               <div>
-                <h2>{ex?.name ?? 'Exercise'}</h2>
+                <h2 className="row-name">
+                  {ex?.name ?? 'Exercise'}
+                  {ex?.custom ? <CustomBadge queued={Boolean(ex.promoteRequestedAt)} /> : null}
+                </h2>
                 <p className="muted">
                   {ex?.primary.map((m) => MUSCLE_LABEL[m]).join(', ')}
                 </p>

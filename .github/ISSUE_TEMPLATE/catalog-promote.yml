@@ -1,0 +1,68 @@
+name: Catalog promotion
+description: Suggest a custom exercise for the shared static library.
+title: "Promote: "
+labels: ["catalog-promote"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this when a custom movement should join `src/data/exercises.ts`.
+        Prefer pasting the **promote payload** copied from the app (You → custom → Suggest for library).
+
+        Bots: `node scripts/promote-catalog.mjs --stdin` on this issue body, or `--file payload.json`.
+        Open a PR with the printed row. **Do not auto-merge.**
+  - type: input
+    id: name
+    attributes:
+      label: Exercise name
+      placeholder: Sissy Squat
+    validations:
+      required: true
+  - type: input
+    id: aliases
+    attributes:
+      label: Aliases
+      description: Comma-separated
+      placeholder: SSQ, sissy
+  - type: dropdown
+    id: equipment
+    attributes:
+      label: Equipment
+      options:
+        - barbell
+        - dumbbell
+        - machine
+        - cable
+        - bodyweight
+        - other
+    validations:
+      required: true
+  - type: input
+    id: primary
+    attributes:
+      label: Primary muscles
+      description: MuscleId values, comma-separated (e.g. quads)
+      placeholder: quads
+    validations:
+      required: true
+  - type: input
+    id: secondary
+    attributes:
+      label: Secondary muscles
+      description: MuscleId values, comma-separated
+      placeholder: glutes
+  - type: input
+    id: custom_id
+    attributes:
+      label: Custom id
+      description: UUID of the user’s custom exercise (do not reuse as the static catalog id)
+  - type: textarea
+    id: note
+    attributes:
+      label: Requester note
+  - type: textarea
+    id: payload
+    attributes:
+      label: Promote payload (JSON)
+      description: Paste the copyable payload from the app. The intake script prefers this fence/block.
+      render: json

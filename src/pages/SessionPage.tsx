@@ -1,4 +1,5 @@
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import { CustomBadge } from '../components/CustomBadge';
 import { SetEditor } from '../components/SetEditor';
 import { ExercisePicker } from '../components/ExercisePicker';
 import { exerciseById } from '../lib/overload';
@@ -37,9 +38,14 @@ export function SessionPage() {
         )}
       </header>
       <p className="hint">Fix gym typos here. Edits sync to your account.</p>
-      {workout.exercises.map((block) => (
+      {workout.exercises.map((block) => {
+        const ex = exerciseById(app.catalog, block.exerciseId);
+        return (
         <article key={block.id} className="ex-block">
-          <h2>{exerciseById(app.catalog, block.exerciseId)?.name}</h2>
+          <h2 className="row-name">
+            {ex?.name}
+            {ex?.custom ? <CustomBadge queued={Boolean(ex.promoteRequestedAt)} /> : null}
+          </h2>
           {block.sets.map((set) => (
             <SetEditor
               key={set.id}
@@ -54,7 +60,8 @@ export function SessionPage() {
             Add set
           </button>
         </article>
-      ))}
+        );
+      })}
       <button type="button" className="primary huge" onClick={() => setPicker(true)}>
         Add exercise
       </button>

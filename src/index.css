@@ -82,7 +82,8 @@ input, select {
 .set-top, .ex-head, .row-actions { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 .step-row { display: grid; grid-template-columns: 64px var(--tap) 1fr var(--tap); gap: 8px; align-items: center; }
 .step { background: #2b3933; font-weight: 800; min-width: var(--tap); }
-.lbl { color: var(--muted); font-size: 0.8rem; }
+.lbl { color: var(--muted); font-size: 0.8rem; display: flex; flex-direction: column; gap: 6px; text-align: left; }
+legend.lbl { display: block; padding: 0; }
 .chip { min-height: 40px; border-radius: 999px; border: 1px solid var(--line); background: transparent; padding: 0 12px; }
 .chip.on { background: #3a3420; color: #f5d76e; }
 .notes { min-height: 44px; }
@@ -133,6 +134,44 @@ input, select {
 }
 .row.static { cursor: default; }
 .row small, .muted { color: var(--muted); }
+.row-main { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; min-width: 0; }
+.row-name { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.badge-custom {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: #3a3420;
+  color: #f5d76e;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.badge-custom.queued { background: #24302a; color: var(--accent); }
+.chip-wrap { display: flex; flex-wrap: wrap; gap: 8px; }
+.custom-form fieldset { border: 0; margin: 0; padding: 0; }
+.stack.tight { gap: 8px; }
+.payload-box {
+  margin: 0;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: #0d1215;
+  color: var(--ink);
+  font-size: 0.78rem;
+  line-height: 1.4;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.link-btn {
+  display: grid;
+  place-items: center;
+  text-decoration: none;
+  color: inherit;
+}
 .chev { color: var(--accent); font-weight: 700; }
 .banner { padding: 10px 12px; border-radius: 12px; background: #24302a; margin: 0; }
 .banner.err, .err { color: var(--danger); }
