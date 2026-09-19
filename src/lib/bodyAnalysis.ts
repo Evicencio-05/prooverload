@@ -1,4 +1,4 @@
-import { MUSCLES } from '../data/muscles';
+import { catalogMuscleIds, MUSCLES, remapMuscleIds } from '../data/muscles';
 import type { CatalogExercise, MuscleId, Workout } from '../types';
 
 export type MuscleStat = {
@@ -58,8 +58,8 @@ export function analyzeBody(
             s.lastTrainedAt = set.completedAt;
           }
         };
-        for (const id of ex.primary) apply(id, 1);
-        for (const id of ex.secondary) apply(id, 0.5);
+        for (const id of remapMuscleIds(ex.primary)) apply(id, 1);
+        for (const id of remapMuscleIds(ex.secondary)) apply(id, 0.5);
       }
     }
   }
@@ -76,7 +76,9 @@ export function analyzeBody(
       : [...trained].sort((a, b) => a.volume - b.volume)[Math.floor(trained.length / 2)]
           .volume;
 
+  const mapped = catalogMuscleIds(catalog);
   const underworked = list.filter((s) => {
+    if (!mapped.has(s.id)) return false;
     const stale = s.daysAgo === null || s.daysAgo >= 5;
     const light = trained.length >= 4 && s.volume < median * 0.4;
     return stale || light;
@@ -116,8 +118,8 @@ export function suggestExercisesFor(
   const wanted = new Set(muscles);
   const scored = catalog
     .map((ex) => {
-      const primaryHits = ex.primary.filter((m) => wanted.has(m)).length;
-      const secondaryHits = ex.secondary.filter((m) => wanted.has(m)).length;
+      const primaryHits = remapMuscleIds(ex.primary).filter((m) => wanted.has(m)).length;
+      const secondaryHits = remapMuscleIds(ex.secondary).filter((m) => wanted.has(m)).length;
       return { ex, score: primaryHits * 2 + secondaryHits };
     })
     .filter((x) => x.score > 0)

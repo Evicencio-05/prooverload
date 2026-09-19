@@ -1,4 +1,45 @@
 export type MuscleId =
+  | 'sternocleidomastoid'
+  | 'pectoralis_clavicular'
+  | 'pectoralis_sternal'
+  | 'pectoralis_costal'
+  | 'serratus_anterior'
+  | 'anterior_deltoid'
+  | 'lateral_deltoid'
+  | 'posterior_deltoid'
+  | 'triceps_long'
+  | 'triceps_lateral'
+  | 'triceps_medial'
+  | 'biceps_brachii'
+  | 'brachialis'
+  | 'brachioradialis'
+  | 'wrist_flexors'
+  | 'wrist_extensors'
+  | 'trapezius_upper'
+  | 'trapezius_mid'
+  | 'trapezius_lower'
+  | 'rhomboids'
+  | 'latissimus_dorsi'
+  | 'teres_major'
+  | 'rotator_cuff'
+  | 'erector_spinae'
+  | 'rectus_abdominis'
+  | 'obliques'
+  | 'iliopsoas'
+  | 'gluteus_maximus'
+  | 'gluteus_medius'
+  | 'rectus_femoris'
+  | 'vastus_lateralis'
+  | 'vastus_medialis'
+  | 'biceps_femoris'
+  | 'semitendinosus'
+  | 'adductors'
+  | 'gastrocnemius'
+  | 'soleus'
+  | 'tibialis_anterior';
+
+/** Phase 1 coarse ids that may still appear on synced custom / promote JSON. */
+export type LegacyMuscleId =
   | 'chest'
   | 'upper_back'
   | 'lats'
@@ -11,12 +52,12 @@ export type MuscleId =
   | 'triceps'
   | 'forearms'
   | 'abs'
-  | 'obliques'
   | 'glutes'
   | 'quads'
   | 'hamstrings'
-  | 'adductors'
   | 'calves';
+
+export type MuscleRegion = 'Push' | 'Pull' | 'Core' | 'Legs';
 
 export type Unit = 'kg' | 'lb';
 

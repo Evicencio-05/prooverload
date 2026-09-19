@@ -9,6 +9,7 @@ import {
   type ReactNode,
 } from 'react';
 import { CATALOG } from '../data/exercises';
+import { normalizeCatalogExercise } from '../data/muscles';
 import { db, instantConfigError } from '../lib/instant';
 import { idbGet, idbSet, outboxAll } from '../lib/idb';
 import { uid, todayKey } from '../lib/ids';
@@ -266,7 +267,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   );
 
   const api = useMemo<Api>(() => {
-    const catalog = [...CATALOG, ...state.customExercises];
+    const catalog = [...CATALOG, ...state.customExercises.map(normalizeCatalogExercise)];
     return {
       ...state,
       catalog,

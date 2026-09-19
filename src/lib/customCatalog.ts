@@ -1,5 +1,7 @@
 import type { CatalogExercise, MuscleId } from '../types';
 
+const FALLBACK_MUSCLE: MuscleId = 'pectoralis_sternal';
+
 export const EQUIPMENT_OPTIONS = [
   { id: 'barbell', label: 'Barbell' },
   { id: 'dumbbell', label: 'Dumbbell' },
@@ -12,26 +14,44 @@ export const EQUIPMENT_OPTIONS = [
 export type EquipmentId = (typeof EQUIPMENT_OPTIONS)[number]['id'];
 
 const MUSCLE_RULES: { test: RegExp; primary: MuscleId; secondary: MuscleId[]; bodyweight?: boolean }[] = [
-  { test: /sissy/, primary: 'quads', secondary: [], bodyweight: true },
-  { test: /calf/, primary: 'calves', secondary: [] },
-  { test: /\brdl\b|romanian|hamstring|leg curl|good morning/, primary: 'hamstrings', secondary: ['glutes'] },
-  { test: /deadlift/, primary: 'hamstrings', secondary: ['glutes', 'lower_back'] },
-  { test: /hip thrust|glute bridge|hip abduct|glute/, primary: 'glutes', secondary: [] },
+  { test: /sissy/, primary: 'rectus_femoris', secondary: ['vastus_medialis'], bodyweight: true },
+  { test: /seated calf/, primary: 'soleus', secondary: [] },
+  { test: /calf/, primary: 'gastrocnemius', secondary: ['soleus'] },
+  { test: /\brdl\b|romanian|good morning/, primary: 'biceps_femoris', secondary: ['semitendinosus', 'gluteus_maximus', 'erector_spinae'] },
+  { test: /seated leg curl/, primary: 'semitendinosus', secondary: ['biceps_femoris'] },
+  { test: /hamstring|leg curl/, primary: 'biceps_femoris', secondary: ['gastrocnemius'] },
+  { test: /deadlift/, primary: 'gluteus_maximus', secondary: ['erector_spinae', 'biceps_femoris'] },
+  { test: /hip thrust|glute bridge/, primary: 'gluteus_maximus', secondary: ['biceps_femoris'] },
+  { test: /hip abduct|glute med/, primary: 'gluteus_medius', secondary: [] },
+  { test: /glute/, primary: 'gluteus_maximus', secondary: [] },
   { test: /adduct/, primary: 'adductors', secondary: [] },
-  { test: /squat|lunge|leg press|leg extension|quad|step-?up/, primary: 'quads', secondary: ['glutes'] },
-  { test: /push-?up|bench|chest|pec|\bflys?\b/, primary: 'chest', secondary: ['front_delts', 'triceps'] },
-  { test: /face ?pull|rear delt|reverse pec/, primary: 'rear_delts', secondary: ['upper_back'] },
-  { test: /pull-?up|chin-?up|pulldown|\blats?\b/, primary: 'lats', secondary: ['biceps'] },
-  { test: /\brows?\b/, primary: 'lats', secondary: ['upper_back', 'biceps'] },
-  { test: /shrug/, primary: 'traps', secondary: [] },
-  { test: /lateral|side delt/, primary: 'side_delts', secondary: [] },
-  { test: /overhead|\bohp\b|military|shoulder press|front raise|arnold/, primary: 'front_delts', secondary: ['triceps'] },
-  { test: /tricep|skull|pushdown|close-?grip/, primary: 'triceps', secondary: [] },
-  { test: /bicep|\bcurls?\b/, primary: 'biceps', secondary: ['forearms'] },
-  { test: /wrist|forearm|farmer/, primary: 'forearms', secondary: [] },
-  { test: /pallof|oblique/, primary: 'obliques', secondary: ['abs'] },
-  { test: /plank|crunch|ab wheel|leg raise|\babs\b/, primary: 'abs', secondary: [] },
-  { test: /back extension|lower back/, primary: 'lower_back', secondary: [] },
+  { test: /leg extension/, primary: 'rectus_femoris', secondary: ['vastus_medialis'] },
+  { test: /squat|lunge|leg press|quad|step-?up/, primary: 'vastus_lateralis', secondary: ['rectus_femoris', 'vastus_medialis', 'gluteus_maximus'] },
+  { test: /incline.*curl/, primary: 'biceps_brachii', secondary: [] },
+  { test: /incline/, primary: 'pectoralis_clavicular', secondary: ['anterior_deltoid', 'triceps_lateral'] },
+  { test: /decline|chest dip/, primary: 'pectoralis_costal', secondary: ['triceps_long', 'anterior_deltoid'] },
+  { test: /push-?up|bench|chest|pec|\bflys?\b/, primary: 'pectoralis_sternal', secondary: ['anterior_deltoid', 'triceps_lateral'] },
+  { test: /face ?pull/, primary: 'posterior_deltoid', secondary: ['rotator_cuff', 'trapezius_upper'] },
+  { test: /rear delt|reverse pec/, primary: 'posterior_deltoid', secondary: ['rhomboids'] },
+  { test: /pull-?up|chin-?up|pulldown|\blats?\b/, primary: 'latissimus_dorsi', secondary: ['biceps_brachii', 'teres_major'] },
+  { test: /\brows?\b/, primary: 'latissimus_dorsi', secondary: ['rhomboids', 'biceps_brachii'] },
+  { test: /shrug/, primary: 'trapezius_upper', secondary: ['trapezius_mid', 'trapezius_lower'] },
+  { test: /lateral|side delt/, primary: 'lateral_deltoid', secondary: [] },
+  { test: /overhead.*(tricep|extension)|french press/, primary: 'triceps_long', secondary: [] },
+  { test: /overhead|\bohp\b|military|shoulder press|front raise|arnold/, primary: 'anterior_deltoid', secondary: ['triceps_lateral'] },
+  { test: /tricep|skull|pushdown|close-?grip|\bdips?\b/, primary: 'triceps_lateral', secondary: [] },
+  { test: /hammer/, primary: 'brachialis', secondary: ['brachioradialis'] },
+  { test: /reverse curl/, primary: 'brachioradialis', secondary: ['biceps_brachii'] },
+  { test: /bicep|\bcurls?\b/, primary: 'biceps_brachii', secondary: ['brachialis'] },
+  { test: /wrist extensor|reverse wrist/, primary: 'wrist_extensors', secondary: [] },
+  { test: /wrist|forearm|farmer/, primary: 'wrist_flexors', secondary: ['brachioradialis'] },
+  { test: /pallof|oblique/, primary: 'obliques', secondary: ['rectus_abdominis'] },
+  { test: /hanging|leg raise|hip flex|iliopsoas/, primary: 'iliopsoas', secondary: ['rectus_abdominis'] },
+  { test: /plank|crunch|ab wheel|\babs\b/, primary: 'rectus_abdominis', secondary: [] },
+  { test: /back extension|lower back|erector/, primary: 'erector_spinae', secondary: [] },
+  { test: /neck|scm|sternocleid/, primary: 'sternocleidomastoid', secondary: [] },
+  { test: /tibialis|shin/, primary: 'tibialis_anterior', secondary: [] },
+  { test: /serratus/, primary: 'serratus_anterior', secondary: [] },
 ];
 
 export function titleCaseExerciseName(raw: string): string {
@@ -70,7 +90,7 @@ export function inferCustomDefaults(query: string): {
     if (equipment === 'other' && rule.bodyweight) equipment = 'bodyweight';
     return { equipment, primary: rule.primary, secondary: rule.secondary, confident: true };
   }
-  return { equipment, primary: 'chest', secondary: [], confident: false };
+  return { equipment, primary: FALLBACK_MUSCLE, secondary: [], confident: false };
 }
 
 export function matchesNameOrAlias(ex: CatalogExercise, query: string): boolean {
