@@ -296,7 +296,7 @@ legend.lbl { display: block; padding: 0; }
 @media (min-width: 1024px) {
   .app-shell {
     width: min(1100px, 100%);
-    padding: 24px 28px calc(120px + env(safe-area-inset-bottom));
+    padding: 24px 28px calc(140px + env(safe-area-inset-bottom));
   }
   .tabbar { width: min(1100px, 100%); }
   .sheet {
@@ -321,13 +321,17 @@ legend.lbl { display: block; padding: 0; }
     grid-column: 1 / -1;
   }
   .screen.log > .ex-block:only-of-type { grid-column: 1 / -1; }
-  .set-fields {
+  /* Only a full-width block has room for weight/reps/RPE on one row. */
+  .ex-block:only-of-type .set-fields {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 12px;
   }
-  .set-fields .step-row {
-    grid-template-columns: auto var(--tap) 1fr var(--tap);
+  .ex-block:only-of-type .set-fields .step-row {
+    grid-template-columns: var(--tap) 1fr var(--tap);
+  }
+  .ex-block:only-of-type .set-fields .step-row .lbl {
+    grid-column: 1 / -1;
   }
   .library-grid,
   .history-grid,
