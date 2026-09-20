@@ -1,5 +1,5 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
-import { authEnvFromProcess, handlePasswordAuth } from './auth-core.ts'
+import { authEnvFromProcess, handlePasswordAuth } from './auth-core'
 
 function readBody(req: IncomingMessage): Promise<string> {
   return new Promise((resolve, reject) => {
