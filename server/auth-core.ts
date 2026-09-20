@@ -1,6 +1,8 @@
+import { Buffer } from 'node:buffer'
 import { pbkdf2Sync, randomBytes, timingSafeEqual } from 'node:crypto'
+import process from 'node:process'
 import { init, id } from '@instantdb/admin'
-import schema from '../instant.schema.ts'
+import schema from '../instant.schema'
 
 export type AuthAction = 'signup' | 'login'
 
@@ -14,7 +16,13 @@ export type AuthResult = {
   body: { token: string } | { error: string }
 }
 
-export function authEnvFromProcess(env: NodeJS.ProcessEnv = process.env): AuthEnv {
+type ProcessEnv = Record<string, string | undefined>
+
+type Credentials =
+  | { ok: true; email: string; password: string }
+  | { ok: false; result: AuthResult }
+
+export function authEnvFromProcess(env: ProcessEnv = process.env): AuthEnv {
   return {
     appId: env.VITE_INSTANT_APP_ID || env.INSTANT_APP_ID,
     adminToken: env.INSTANT_ADMIN_TOKEN,
@@ -36,9 +44,7 @@ function verifyPassword(password: string, stored: string): boolean {
   return timingSafeEqual(a, test)
 }
 
-function credentialsFromBody(
-  body: unknown,
-): { ok: true; email: string; password: string } | { ok: false; result: AuthResult } {
+function credentialsFromBody(body: unknown): Credentials {
   let parsed: { email?: string; password?: string } = {}
   if (typeof body === 'string') {
     try {
@@ -70,7 +76,9 @@ export async function handlePasswordAuth(
   }
 
   const creds = credentialsFromBody(body)
-  if (!creds.ok) return creds.result
+  if (creds.ok === false) {
+    return creds.result
+  }
 
   const db = init({ appId: env.appId, adminToken: env.adminToken, schema })
   const { accounts } = await db.query({ accounts: { $: { where: { email: creds.email } } } })

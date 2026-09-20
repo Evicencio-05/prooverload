@@ -1,21 +1,26 @@
-import { authEnvFromProcess, handleLogin, handleSignup, type AuthAction } from '../../server/auth-core.ts'
+import { authEnvFromProcess, handleLogin, handleSignup, type AuthAction } from '../../server/auth-core'
 
 export async function dispatchAuthRequest(action: AuthAction, request: Request): Promise<Response> {
-  if (request.method === 'OPTIONS') {
-    return new Response(null, { status: 204 })
-  }
-
-  let body: unknown = {}
-  const raw = await request.text()
-  if (raw) {
-    try {
-      body = JSON.parse(raw)
-    } catch {
-      return Response.json({ error: 'Invalid JSON' }, { status: 400 })
+  try {
+    if (request.method === 'OPTIONS') {
+      return new Response(null, { status: 204 })
     }
-  }
 
-  const run = action === 'signup' ? handleSignup : handleLogin
-  const result = await run(body, authEnvFromProcess())
-  return Response.json(result.body, { status: result.status })
+    let body: unknown = {}
+    const raw = await request.text()
+    if (raw) {
+      try {
+        body = JSON.parse(raw)
+      } catch {
+        return Response.json({ error: 'Invalid JSON' }, { status: 400 })
+      }
+    }
+
+    const run = action === 'signup' ? handleSignup : handleLogin
+    const result = await run(body, authEnvFromProcess())
+    return Response.json(result.body, { status: result.status })
+  } catch (err) {
+    console.error('[api/auth]', err)
+    return Response.json({ error: 'Auth request failed' }, { status: 500 })
+  }
 }

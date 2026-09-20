@@ -1,10 +1,21 @@
 #!/usr/bin/env node
 /** Auth handler checks that do not call Instant. */
+import { spawnSync } from 'node:child_process'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { handleLogin, handleSignup } from '../server/auth-core.ts'
 
 function assert(cond, msg) {
   if (!cond) throw new Error(msg)
 }
+
+const root = join(dirname(fileURLToPath(import.meta.url)), '..')
+const tsc = spawnSync(
+  process.execPath,
+  [join(root, 'node_modules/typescript/bin/tsc'), '-p', 'api/tsconfig.json', '--pretty', 'false'],
+  { cwd: root, encoding: 'utf8' },
+)
+assert(tsc.status === 0, `Vercel api tsconfig check failed:\n${tsc.stdout}${tsc.stderr}`)
 
 const missingEnv = await handleSignup({ email: 'a@b.com', password: 'secret1' }, {})
 assert(missingEnv.status === 500, 'missing Instant admin env should 500')

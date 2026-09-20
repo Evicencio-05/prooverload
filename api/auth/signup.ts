@@ -1,4 +1,4 @@
-import { dispatchAuthRequest } from './_shared.ts'
+import { dispatchAuthRequest } from './_shared'
 
 export const config = { runtime: 'nodejs' }
 

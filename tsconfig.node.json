@@ -24,7 +24,6 @@
     "vite.config.ts",
     "server/auth-api.ts",
     "server/auth-core.ts",
-    "api/**/*.ts",
     "instant.schema.ts"
   ]
 }
