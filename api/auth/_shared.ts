@@ -1,4 +1,4 @@
-import { authEnvFromProcess, handleLogin, handleSignup, type AuthAction } from '../../server/auth-core'
+import { authEnvFromProcess, handleLogin, handleSignup, type AuthAction } from '../../server/auth-core.ts'
 
 export async function dispatchAuthRequest(action: AuthAction, request: Request): Promise<Response> {
   if (request.method === 'OPTIONS') {

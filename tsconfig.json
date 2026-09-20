@@ -5,13 +5,16 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "types": ["node"],
+    "typeRoots": ["./node_modules/@types"],
     "skipLibCheck": true,
     "strict": true,
     "noEmit": true,
     "isolatedModules": true,
     "moduleDetection": "force",
     "verbatimModuleSyntax": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "rewriteRelativeImportExtensions": true,
+    "allowImportingTsExtensions": true
   },
   "files": [],
   "references": [

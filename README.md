@@ -52,7 +52,7 @@ Production is the Vite PWA in `dist` plus two Node serverless routes. Auth is no
 
 The app uses `HashRouter` (`/#/…`), so client routes do not need a catch-all rewrite to `index.html`. Do not add a `/(.*)` → `/index.html` rewrite: it can swallow `/api/auth/*`. Those paths are Vercel Node functions (`api/auth/signup.ts`, `api/auth/login.ts`) on the Node runtime.
 
-Vercel typechecks those files with the **root** `tsconfig.json` `compilerOptions`. It does not apply Vite’s project-reference configs (`tsconfig.app.json` / `tsconfig.node.json`), so `/api` and `server/auth-core.ts` use extensionless imports and the root config sets `types: ["node"]`.
+Vercel typechecks those files with the **root** `tsconfig.json` `compilerOptions`. It does not apply Vite’s project-reference configs (`tsconfig.app.json` / `tsconfig.node.json`). The root config therefore sets `types: ["node"]` and `rewriteRelativeImportExtensions` so `/api` can keep `.ts` import suffixes (Vite’s native config loader needs them) without TS5097.
 
 Local `npm run dev` and `npm run preview` still serve the same two endpoints through Vite middleware. Behavior is unchanged; only the production host needs the serverless routes.
 

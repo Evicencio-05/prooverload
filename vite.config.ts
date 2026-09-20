@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 async function authMiddleware(req: IncomingMessage, res: ServerResponse, next: () => void) {
-  const { handleAuthApi } = await import('./server/auth-api')
+  const { handleAuthApi } = await import('./server/auth-api.ts')
   if (await handleAuthApi(req, res)) return
   next()
 }

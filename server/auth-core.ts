@@ -1,7 +1,7 @@
 /// <reference types="node" />
 import { pbkdf2Sync, randomBytes, timingSafeEqual } from 'node:crypto'
 import { init, id } from '@instantdb/admin'
-import schema from '../instant.schema'
+import schema from '../instant.schema.ts'
 
 export type AuthAction = 'signup' | 'login'
 

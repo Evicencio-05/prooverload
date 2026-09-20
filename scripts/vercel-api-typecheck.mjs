@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Typecheck /api the way Vercel Node functions do: root tsconfig compilerOptions
- * (project references ignored), no .ts import suffixes, Node types on.
+ * (project references ignored), .ts import suffixes allowed via rewrite, Node types on.
  */
 import { spawnSync } from 'node:child_process'
 import { mkdtempSync, writeFileSync, rmSync } from 'node:fs'
