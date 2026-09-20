@@ -1,5 +1,5 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
-import { authEnvFromProcess, handlePasswordAuth } from './auth-core'
+import { authEnvFromProcess, handlePasswordAuth } from './auth-core.ts'
 
 function readBody(req: IncomingMessage): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -47,7 +47,12 @@ export async function handleAuthApi(req: IncomingMessage, res: ServerResponse): 
     return true
   }
 
-  const result = await handlePasswordAuth(isSignup ? 'signup' : 'login', parsed, env)
-  send(res, result.status, result.body)
+  try {
+    const result = await handlePasswordAuth(isSignup ? 'signup' : 'login', parsed, env)
+    send(res, result.status, result.body)
+  } catch (err) {
+    console.error('[api/auth]', err)
+    send(res, 500, { error: 'Auth request failed' })
+  }
   return true
 }
