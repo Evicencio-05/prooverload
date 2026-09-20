@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import { pbkdf2Sync, randomBytes, timingSafeEqual } from 'node:crypto'
 import { init, id } from '@instantdb/admin'
 import schema from '../instant.schema.ts'
@@ -14,7 +15,11 @@ export type AuthResult = {
   body: { token: string } | { error: string }
 }
 
-export function authEnvFromProcess(env: NodeJS.ProcessEnv = process.env): AuthEnv {
+type ParsedCredentials = { email: string; password: string }
+
+export function authEnvFromProcess(
+  env: NodeJS.ProcessEnv = process.env,
+): AuthEnv {
   return {
     appId: env.VITE_INSTANT_APP_ID || env.INSTANT_APP_ID,
     adminToken: env.INSTANT_ADMIN_TOKEN,
@@ -36,15 +41,17 @@ function verifyPassword(password: string, stored: string): boolean {
   return timingSafeEqual(a, test)
 }
 
-function credentialsFromBody(
-  body: unknown,
-): { ok: true; email: string; password: string } | { ok: false; result: AuthResult } {
+function isAuthResult(value: ParsedCredentials | AuthResult): value is AuthResult {
+  return 'status' in value
+}
+
+function credentialsFromBody(body: unknown): ParsedCredentials | AuthResult {
   let parsed: { email?: string; password?: string } = {}
   if (typeof body === 'string') {
     try {
       parsed = JSON.parse(body || '{}') as { email?: string; password?: string }
     } catch {
-      return { ok: false, result: { status: 400, body: { error: 'Invalid JSON' } } }
+      return { status: 400, body: { error: 'Invalid JSON' } }
     }
   } else if (body && typeof body === 'object') {
     parsed = body as { email?: string; password?: string }
@@ -53,11 +60,11 @@ function credentialsFromBody(
   const password = parsed.password ?? ''
   if (!email || password.length < 6) {
     return {
-      ok: false,
-      result: { status: 400, body: { error: 'Email and a 6+ character password are required.' } },
+      status: 400,
+      body: { error: 'Email and a 6+ character password are required.' },
     }
   }
-  return { ok: true, email, password }
+  return { email, password }
 }
 
 export async function handlePasswordAuth(
@@ -70,7 +77,7 @@ export async function handlePasswordAuth(
   }
 
   const creds = credentialsFromBody(body)
-  if (!creds.ok) return creds.result
+  if (isAuthResult(creds)) return creds
 
   const db = init({ appId: env.appId, adminToken: env.adminToken, schema })
   const { accounts } = await db.query({ accounts: { $: { where: { email: creds.email } } } })
